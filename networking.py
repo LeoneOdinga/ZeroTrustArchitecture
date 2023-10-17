@@ -63,8 +63,8 @@ if __name__ == '__main__':
     node1.start_listening_thread()
     node2.start_listening_thread()
 
-    # Connect node1 to node2
-    node1.create_connection('127.0.0.1', 8081)
+    # Explicitly connect node2 to node1
+    node2.create_connection('127.0.0.1', 8080)
 
     while True:
         try:
