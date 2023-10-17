@@ -28,6 +28,19 @@ class Peer:
             client, addr = self.sock.accept()
             self.connections.append(client)
             print(f"Connected to {addr[0]}:{addr[1]}")
+            receive_thread = threading.Thread(target=self.receive_data, args=(client,))
+            receive_thread.daemon = True
+            receive_thread.start()
+
+    def receive_data(self, connection):
+        while True:
+            try:
+                data = connection.recv(1024)
+                if not data:
+                    break
+                print(f"Received: {data.decode()}")
+            except ConnectionResetError:
+                break
 
     def exchange_data(self, target_peer, data):
         # Send data to a specific peer
