@@ -26,7 +26,6 @@ To get started with the project, follow these steps:
 
 1. Clone the repository: `git clone https://github.com/LeoneOdinga/ZeroTrustArchitecture.git`
 2. Install dependencies and set up the required environment.
-3. Run the project using `python app.py` (or the appropriate command for your setup).
 
 ## Contribution Guidelines
 
@@ -37,5 +36,3 @@ Contributions are welcome! Please follow these guidelines when contributing to t
 - Submit a pull request, clearly describing the changes you made.
 
 ## License
-
-This project is licensed under the [MIT License](LICENSE).
