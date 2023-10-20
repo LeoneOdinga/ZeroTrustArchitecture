@@ -13,14 +13,6 @@ time.sleep(10)
 debug = False
 
 node_1.connect_with_node('127.0.0.2', 8002)
-node_1.print_connections()
+node_1.debug =debug
 
-node_1.send_to_nodes("Hi there from node 1 to node 2")
-node_1.print_all_nodes()
-
-node_1.send_message_to_node('2',"hweeeeeeeeeeeeeey")
-
-time.sleep(10)
-node_1.stop()
-
-print('end test')
+node_1.send_message_to_node('2',{'Name':'leone'})
