@@ -55,10 +55,17 @@ class Networking(Node):
 
     def outbound_node_connected(self, node):
         node_role = self.get_node_role(node.id)
+<<<<<<< HEAD
         print(f"Outbound Connection from {self.get_node_role(self.id)} to {node_role} SUCCESS")
         
     def inbound_node_connected(self, node):
         print(f"Inbound Connection from {self.get_node_role(node.id)} to {self.get_node_role(self.id)} SUCCESS")
+=======
+        print(f"{self.get_node_role(self.id)} Connected to {node_role}")
+        
+    def inbound_node_connected(self, node):
+        print(f"{self.get_node_role(node.id)} Connected to {self.get_node_role(self.id)}")
+>>>>>>> networking
 
     def inbound_node_disconnected(self, node):
         print(f"{self.get_node_role(node.id)} DISCONNECTED from {self.get_node_role(self.id)}")
