@@ -61,17 +61,17 @@ class Networking(Node):
         print(f"{self.get_node_role(node.id)} Connected to {self.get_node_role(self.id)}")
 
     def inbound_node_disconnected(self, node):
-        print("inbound_node_disconnected: (" + self.id + "): " + node.id)
+        print(f"{self.get_node_role(node.id)} DISCONNECTED from {self.get_node_role(self.id)}")
 
     def outbound_node_disconnected(self, node):
-        print("outbound_node_disconnected: (" + self.id + "): " + node.id)
+        print(f"{self.get_node_role(self.id)} DISCONNECTED from {self.get_node_role(node.id)}")
 
     def node_message(self, node, data):
-        print("node_message (" + self.id + ") from " + node.id + ": " + str(data))
+        print(f"Received Data From {self.get_node_role(node.id)}: {str(data)}")
         
     def node_disconnect_with_outbound_node(self, node):
-        print("node wants to disconnect with other outbound node: (" + self.id + "): " + node.id)
-        
+        print(f"{self.get_node_role(self.id)} wants to disconnect with {node.id}")   
+            
     def node_request_to_stop(self):
-        print("node is requested to stop (" + self.id + "): ")
+        print(f"Stopping the {self.get_node_role(self.id)} node")
         
