@@ -12,7 +12,7 @@ node_1.start()
 
 time.sleep(5)
 
-debug = False
+debug = True
 
 node_1.connect_with_node('127.0.0.2', 8002)
 node_1.debug =debug

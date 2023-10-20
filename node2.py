@@ -10,11 +10,11 @@ node_2.start()
 
 time.sleep(15)
 
-debug = False
+debug = True
 
 node_2.connect_with_node('127.0.0.1', 8001)
 
-node_2.debug -debug
+node_2.debug = debug
 
 time.sleep(2)
 
