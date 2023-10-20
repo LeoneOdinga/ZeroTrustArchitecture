@@ -16,7 +16,7 @@ class Networking(Node):
         '3':'Policy Engine Node'
     }
 
-    # Python class constructor to initialize the class 
+    # Python class constructor to initialize the class Networking
     def __init__(self, host, port, id=None, callback=None, max_connections=0):
         super(Networking, self).__init__(host, port, id, callback, max_connections)
         print("Starting...")
