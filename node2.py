@@ -6,11 +6,9 @@ from Networking import Networking
 
 node_2 = Networking("127.0.0.2", 8002, 2)
 
-time.sleep(1)
-
 node_2.start()
 
-time.sleep(15)
+time.sleep(10)
 
 debug = False
 
@@ -22,7 +20,7 @@ node_2.send_to_nodes("Hi there from node 2 to node 1")
 node_2.send_message_to_node('1','HELLOOOOOOOOOOOO')
 node_2.print_all_nodes()
 
-time.sleep(20)
+time.sleep(10)
 
 node_2.stop()
 
