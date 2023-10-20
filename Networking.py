@@ -19,7 +19,7 @@ class Networking(Node):
     # Python class constructor to initialize the class Networking
     def __init__(self, host, port, id=None, callback=None, max_connections=0):
         super(Networking, self).__init__(host, port, id, callback, max_connections)
-        print("Starting...")
+        print(f"\n{self.get_node_role(self.id)} STARTED on {self.host}:{self.port}")
     
     #Define a function to extract the name of a node based on it's node.id attribute
     def get_node_role(self,node_id):
@@ -55,23 +55,23 @@ class Networking(Node):
 
     def outbound_node_connected(self, node):
         node_role = self.get_node_role(node.id)
-        print(f"{self.get_node_role(self.id)} Connected to {node_role}")
+        print(f"\n{self.get_node_role(self.id)} Connected to {node_role}")
         
     def inbound_node_connected(self, node):
-        print(f"{self.get_node_role(node.id)} Connected to {self.get_node_role(self.id)}")
+        print(f"\n{self.get_node_role(node.id)} Connected to {self.get_node_role(self.id)}")
 
     def inbound_node_disconnected(self, node):
-        print(f"{self.get_node_role(node.id)} DISCONNECTED from {self.get_node_role(self.id)}")
+        print(f"\n{self.get_node_role(node.id)} DISCONNECTED from {self.get_node_role(self.id)}")
 
     def outbound_node_disconnected(self, node):
-        print(f"{self.get_node_role(self.id)} DISCONNECTED from {self.get_node_role(node.id)}")
+        print(f"\n{self.get_node_role(self.id)} DISCONNECTED from {self.get_node_role(node.id)}")
 
     def node_message(self, node, data):
-        print(f"Received Data From {self.get_node_role(node.id)}: {str(data)}")
+        print(f"\nReceived Data From {self.get_node_role(node.id)}: {str(data)}")
         
     def node_disconnect_with_outbound_node(self, node):
-        print(f"{self.get_node_role(self.id)} wants to disconnect with {node.id}")   
+        print(f"\n{self.get_node_role(self.id)} wants to disconnect with {node.id}")   
             
     def node_request_to_stop(self):
-        print(f"Stopping the {self.get_node_role(self.id)} node")
+        print(f"\nStopping the {self.get_node_role(self.id)} node")
         
