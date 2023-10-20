@@ -1,22 +1,29 @@
-from peer import Peer
+import sys
+import time
+sys.path.insert(0, '..') # Import the files where the modules are located
 
-if __name__ == '__main__':
-    node2 = Peer('127.0.0.1', 8081)
-    node2.start_listen_and_send_thread()
+from Networking import Networking
 
-    # Predefined target peer's address (Node 1)
-    target_host, target_port = '127.0.0.1', 8080
-    node2.create_connection(target_host, target_port)
+node_2 = Networking("127.0.0.2", 8002, 2)
 
-    while True:
-        try:
-            message = input("Enter a message to send (or press Enter to receive messages): ")
-            if message:
-                node2.exchange_data(node2.connections[0], message.encode())
-            else:
-                # Code for handling received messages can be added here
-                pass
-        except KeyboardInterrupt:
-            print("Keyboard interrupt detected. Closing connections.")
-            node2.close()
-            break
+time.sleep(1)
+
+node_2.start()
+
+time.sleep(15)
+
+debug = False
+
+node_2.connect_with_node('127.0.0.1', 8001)
+
+time.sleep(2)
+
+node_2.send_to_nodes("Hi there from node 2 to node 1")
+node_2.send_message_to_node('1','HELLOOOOOOOOOOOO')
+node_2.print_all_nodes()
+
+time.sleep(20)
+
+node_2.stop()
+
+print('end test')
