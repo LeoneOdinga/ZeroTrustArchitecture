@@ -18,7 +18,7 @@ node_3.debug = debug
 #Start a loop to keep sending messages between node 1 and node 2
 while(True):
 
-    userInput = input("\nSend a Message to  Node 1: ")
+    userInput = input("\nSend a Message to  Node 1 and node 2: ")
 
     if(userInput == 'exit'):
         break

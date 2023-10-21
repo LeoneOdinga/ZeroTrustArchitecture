@@ -21,7 +21,7 @@ node_2.connect_with_node('127.0.0.1',8001)
 #Start a loop to keep sending messages between node 1 and node 2
 while(True):
 
-    userInput = input("\nSend a Message to  Node 3: ")
+    userInput = input("\nSend a Message to  Node 1 and node 3: ")
 
     if(userInput == 'exit'):
         break

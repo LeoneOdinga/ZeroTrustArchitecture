@@ -18,16 +18,21 @@ node_1.debug =debug
 node_1.connect_with_node('127.0.0.1', 8002)
 node_1.connect_with_node('127.0.0.1',8003)
 
-#Start a loop to keep sending messages between node 1 and node 2
-while(True):
+try:
+    #Start a loop to keep sending messages between node 1 and node 2
+    while(True):
 
-    userInput = input("\nSend a Message to  Node 2: ")
+        userInput = input("\nSend a Message to  Node 2 and node 3: ")
 
-    if(userInput == 'exit'):
-        break
+        if(userInput == 'exit'):
+            break
 
-    else:
-        node_1.send_message_to_node('2',userInput)
-        node_1.send_message_to_node('3',userInput)
+        else:
+            node_1.send_message_to_node('2',userInput)
+            node_1.send_message_to_node('3',userInput)
 
-node_1.stop()
+except KeyboardInterrupt:
+    print("\nKeyboard interrupt received. Exiting...")
+
+finally:
+    node_1.stop()
