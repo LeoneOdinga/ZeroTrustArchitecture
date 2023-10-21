@@ -12,16 +12,22 @@ node_1.start()
 
 debug = False
 
+node_1.debug =debug
+
 #Connect with node 2
-node_1.connect_with_node('127.0.0.2', 8002)
+node_1.connect_with_node('127.0.0.1', 8002)
+node_1.connect_with_node('127.0.0.1',8003)
 
 #Start a loop to keep sending messages between node 1 and node 2
 while(True):
 
-    userInput = input("Send a Message to  Node 2: ")
-    node_1.send_message_to_node('2',userInput)
+    userInput = input("\nSend a Message to  Node 2: ")
 
     if(userInput == 'exit'):
         break
+
+    else:
+        node_1.send_message_to_node('2',userInput)
+        node_1.send_message_to_node('3',userInput)
 
 node_1.stop()

@@ -17,7 +17,7 @@ class Networking(Node):
     }
 
     # Python class constructor to initialize the class Networking
-    def __init__(self, host, port, id=None, callback=None, max_connections=0):
+    def __init__(self, host, port, id=None, callback=None, max_connections=10):
         super(Networking, self).__init__(host, port, id, callback, max_connections)
         print(f"\n{self.get_node_role(self.id)} STARTED on {self.host}:{self.port}")
     
@@ -27,18 +27,19 @@ class Networking(Node):
     
 
     def send_message_to_node(self, node_id, message):
-    # Find the specific node by its ID
+        # Find the specific node by its ID
         target_node = None
+
         for node in self.all_nodes:
             if node.id == node_id:
                 target_node = node
                 # Send the message to the specific node
                 self.send_to_node(target_node, message)
-                print("MSG SENT")
+                print("Message sent to node:", node_id)
                 break
-            
-            else:
-                print(f"Node {node_id} not found.")
+        if target_node is None:
+            print(f"Node {node_id} not found in inbound or outbound connections.")
+
     
 
     def print_all_nodes(self):
