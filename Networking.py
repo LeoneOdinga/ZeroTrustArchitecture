@@ -17,7 +17,7 @@ class Networking(Node):
     }
 
     # Python class constructor to initialize the class Networking
-    def __init__(self, host, port, id=None, callback=None, max_connections=10):
+    def __init__(self, host, port, id=None, callback=None, max_connections=0):
         super(Networking, self).__init__(host, port, id, callback, max_connections)
         print(f"\n{self.get_node_role(self.id)} STARTED on {self.host}:{self.port}")
     
@@ -55,15 +55,15 @@ class Networking(Node):
         return sender_id == '3'
     
     def process_message_from_access_proxy(self, sender, message):
-        print(f"Received a message from Access Proxy Node ({sender}): {message}")
+        print(f"Received a message from Access Proxy Node [{sender}]: {message}")
         # Your code to process messages from the Access Proxy Node goes here
 
     def process_message_from_trust_engine(self, sender, message):
-        print(f"Received a message from Trust Engine Node ({sender}): {message}")
+        print(f"Received a message from Trust Engine Node [{sender}]: {message}")
         # Your code to process messages from the Trust Engine Node goes here
 
     def process_message_from_policy_engine(self, sender, message):
-        print(f"Received a message from Policy Engine Node ({sender}): {message}")
+        print(f"Received a message from Policy Engine Node [{sender}]: {message}")
         # Your code to process messages from the Policy Engine Node goes here
 
     def print_all_nodes(self):
