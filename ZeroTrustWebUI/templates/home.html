@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>ZTA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        h1 {
+            font-size: 36px;
+            color: #333;
+        }
+        h2 {
+            font-size: 24px;
+            color: #4CAF50;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+        .option {
+            background-color: #D1F2C6;
+            border: 2px solid #D1F2C6;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            padding: 20px;
+            text-align: left;
+            transition: background-color 0.3s, color 0.2s, transform 0.2s;
+            color: #333;
+            cursor: pointer;
+        }
+        .option:hover {
+            background-color: #A9DFBF;
+            color: #000; /* Slightly darker text color on hover */
+            transform: scale(1.02);
+        }
+        .option h3 {
+            font-size: 20px;
+            margin: 0;
+        }
+        .option p {
+            color: #333;
+        }
+        .access-message {
+            font-size: 18px;
+            color: #333;
+        }
+        .footer {
+            margin-top: 20px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Zero Trust Access and Configuration Page</h2>
+        <p class="access-message">Please select one of the following options:</p>
+        <div class="options">
+            <div class="option" id="option1" role="button" tabindex="0" aria-label="Access Protected Resources" onclick="sendData()">
+                <h3>01. Access Protected Resources</h3>
+                <p>Securely access sensitive data and services based on zero trust principles.</p>
+            </div>
+            <div class="option" role="button" tabindex="0" aria-label="Configure Security Policies">
+                <h3>02. Configure Security Policies</h3>
+                <p>Configure contextual security policies for Zero Trust Network Access.</p>
+            </div>
+            <div class="option" role="button" tabindex="0" aria-label="Monitoring and logging">
+                <h3>03. Monitoring and logging</h3>
+                <p>Get full visibility of system logs and events.</p>
+            </div>
+            <div class="option" role="button" tabindex="0" aria-label="Privileged Access Management">
+                <h3>04. Privileged Access Management</h3>
+                <p>Least Privileged just-in-time access for highly sensitive resources.</p>
+            </div>
+        </div>
+        <div class="footer">
+            &copy; 2023 LeoTech LTD
+        </div>
+    </div>
+
+    <script>
+        function sendData() {
+            // Sample data to send
+            const data = {
+                option: "Access Protected Resources",
+                message: "Sample data for option 1",
+            };
+
+            // Send data to Flask backend using AJAX
+            fetch('/send-data', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+
+</body>
+</html>
