@@ -16,3 +16,19 @@ node_1.debug =debug
 
 #Connect with node 4
 node_1.connect_with_node('127.0.0.1',8004)
+
+try:
+    #Start a loop
+    while(True):
+
+        userInput = input("\nType 'exit' to stop the node")
+
+        if(userInput == 'exit'):
+            break
+
+except KeyboardInterrupt:
+    print("\nKeyboard interrupt received. Exiting...")
+
+finally:
+    node_1.stop()
+
