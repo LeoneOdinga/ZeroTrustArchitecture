@@ -1,9 +1,9 @@
 import sys
 from flask import Flask,render_template, request, jsonify
 
-sys.path.insert(0,'...')
+from Networking import Networking
 
-from .. Networking import Networking
+sys.path.insert(0,'..')
 
 app = Flask(__name__)
 
