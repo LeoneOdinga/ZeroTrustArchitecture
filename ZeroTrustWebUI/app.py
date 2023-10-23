@@ -31,6 +31,10 @@ def receive_and_process_access_request():
     node4.connect_with_node('127.0.0.1',8001)
     node4.send_message_to_node('1',data)
 
+    #Then disconnect from the AP gracefully
+
+    node4.stop()
+
     return jsonify({'message': 'Data receivved successfully'})
 
 if __name__ == "__main__":
