@@ -37,6 +37,10 @@ def receive_and_process_access_request():
 
     return jsonify({'message': 'Data receivved successfully'})
 
+@app.route('/resource-selection')
+def resource_selection():
+    return render_template('resourceSelection.html')
+
 if __name__ == "__main__":
     app.run(debug=True)
 
