@@ -18,13 +18,9 @@ node_3.debug = debug
 #Start a loop to keep sending messages between node 1 and node 2
 while(True):
 
-    userInput = input("\nSend a Message to  Node 1 and node 2: ")
+    userInput = input("\nType 'exit' to stop the policy engine")
 
     if(userInput == 'exit'):
         break
-    
-    else:
-        node_3.send_message_to_node('1',userInput)
-        node_3.send_message_to_node('2',userInput)
 
 node_3.stop()

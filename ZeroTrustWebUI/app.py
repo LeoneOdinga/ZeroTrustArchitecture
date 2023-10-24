@@ -35,7 +35,9 @@ def receive_and_process_access_request():
 
     node4.stop()
 
-    return jsonify({'message': 'Data receivved successfully'})
+    # Communicate to the frontend that the access request has been received
+    response_data = {'message': 'Data received successfully', 'status': 'received'}
+    return jsonify(response_data)
 
 @app.route('/resource-selection')
 def resource_selection():

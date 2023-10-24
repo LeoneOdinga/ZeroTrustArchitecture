@@ -18,16 +18,11 @@ node_2.debug = debug
 node_2.connect_with_node('127.0.0.1', 8003)
 node_2.connect_with_node('127.0.0.1',8001)
 
-#Start a loop to keep sending messages between node 1 and node 2
 while(True):
 
-    userInput = input("\nSend a Message to  Node 1 and node 3: ")
+    userInput = input("\nType 'exit' to end the Trust engine...")
 
     if(userInput == 'exit'):
         break
-    
-    else:
-        node_2.send_message_to_node('1',userInput)
-        node_2.send_message_to_node('3',userInput)
 
 node_2.stop()
