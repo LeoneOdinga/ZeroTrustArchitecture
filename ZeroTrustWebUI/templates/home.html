@@ -91,32 +91,6 @@
             &copy; 2023 LeoTech LTD
         </div>
     </div>
-
-    <script>
-        function sendData() {
-            // Sample data to send
-            const data = {
-                option: "Access Protected Resources",
-                message: "Sample data for option 1",
-            };
-
-            // Send data to Flask backend using AJAX
-            fetch('/receive-request', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-    </script>
     <script>
         function redirectToResourceSelection() {
             // Redirect to the ResourceSelection.html page
