@@ -70,11 +70,11 @@
         <h2>ZTA - Resource Selection</h2>
         <p class="access-message">Please select one of the following protected resources:</p>
         <div class="options">
-            <div class="option" id="resource1" role="button" tabindex="0" aria-label="Resource 1" onclick="accessResource('Resource 1')">
+            <div class="option" id="resource1" role="button" tabindex="0" aria-label="Resource 1" onclick="sendAccessRequest('Resource 1')">
                 <h3>01. Resource 1</h3>
                 <p>Access Customer PII Database</p>
             </div>
-            <div class="option" role="button" tabindex="0" aria-label="Resource 2" onclick="accessResource('Resource 2')">
+            <div class="option" role="button" tabindex="0" aria-label="Resource 2" onclick="sendAccessRequest('Resource 2')">
                 <h3>02. Resource 2</h3>
                 <p>Access Credit Details</p>
             </div>
@@ -86,10 +86,36 @@
     </div>
 
     <script>
-        function accessResource(resource) {
-            // Implement your logic to access the selected resource
-            alert('You have selected: ' + resource);
-            // You can also send a request to the backend to access the resource if needed.
+        function sendAccessRequest(resource) {
+            // Disable the option to prevent multiple requests
+            const selectedOption = event.currentTarget;
+            selectedOption.style.pointerEvents = "none";
+            selectedOption.style.backgroundColor = "#ccc";
+            
+            // Send an access request to the Flask backend
+            const data = {
+                resource: resource,
+                message: "Access request for " + resource,
+            };
+
+            fetch('/receive-access-request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Indicate to the user that the request has been sent and is awaiting verification
+                selectedOption.innerHTML = `<h3>${resource}</h3><p>Access request sent. Awaiting verification...</p>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Re-enable the option in case of an error
+                selectedOption.style.pointerEvents = "auto";
+                selectedOption.style.backgroundColor = "#D1F2C6";
+            });
         }
     </script>
 
