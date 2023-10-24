@@ -70,7 +70,7 @@
         <h2>Zero Trust Access and Configuration Page</h2>
         <p class="access-message">Please select one of the following options:</p>
         <div class="options">
-            <div class="option" id="option1" role="button" tabindex="0" aria-label="Access Protected Resources" onclick="sendData()">
+            <div class="option" id="option1" role="button" tabindex="0" aria-label="Access Protected Resources" onclick="redirectToResourceSelection()">
                 <h3>01. Access Protected Resources</h3>
                 <p>Securely access sensitive data and services based on zero trust principles.</p>
             </div>
@@ -116,6 +116,13 @@
                 console.error('Error:', error);
             });
         }
+    </script>
+    <script>
+        function redirectToResourceSelection() {
+            // Redirect to the ResourceSelection.html page
+            window.location.href = 'resource-selection';
+        }
+
     </script>
 
 </body>
