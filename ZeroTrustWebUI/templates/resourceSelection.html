@@ -71,11 +71,11 @@
         <p class="access-message">Please select one of the following protected resources:</p>
         <div class="options">
             <div class="option" id="resource1" role="button" tabindex="0" aria-label="Resource 1" onclick="sendAccessRequest('Resource 1')">
-                <h3>01. Resource 1</h3>
+                <h3>01. PII Database</h3>
                 <p>Access Customer PII Database</p>
             </div>
             <div class="option" role="button" tabindex="0" aria-label="Resource 2" onclick="sendAccessRequest('Resource 2')">
-                <h3>02. Resource 2</h3>
+                <h3>02. Credit Data</h3>
                 <p>Access Credit Details</p>
             </div>
             <!-- Add more resource options as needed -->
@@ -102,10 +102,17 @@
             const deviceType = /Mobile|iP(hone|od)|Android|BlackBerry|IEMobile/.test(userAgent)
                 ? 'Mobile'
                 : 'Desktop';
+
+            // Get user details from the page
+            const userId = "{{ user_id }}"; // Replace with the appropriate way to get user ID in your template
+            const username = "{{ username }}"; // Replace with the appropriate way to get username in your template
+            const givenName = "{{ given_name }}";
             
             // Send an access request to the Flask backend
             const data = {
-                UID: 1001,
+                userId: userId,
+                username: username,
+                givenName: givenName,
                 intent: 'Access Request',
                 resource: resource,
                 message: 'Access request for '+ resource,

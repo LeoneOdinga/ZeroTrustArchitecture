@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 AccessProxy.py
+python3 TrustEngine.py
