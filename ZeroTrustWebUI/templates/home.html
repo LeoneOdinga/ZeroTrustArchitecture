@@ -15,17 +15,38 @@
             max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #fff;
+            background-color: #ffffff;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            position: relative;
         }
-        h1 {
-            font-size: 36px;
-            color: #333;
+        .logout-btn {
+            background-color: #E74C3C;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
-        h2 {
-            font-size: 24px;
-            color: #4CAF50;
+        .user-identifiers {
+            background-color: #4CAF50;
+            color: #fff;
+            padding: 10px;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+        }
+        .user-identifiers p {
+            margin: 5px;
+        }
+        .user-info {
+            font-size: 18px;
+            margin: 20px;
         }
         .options {
             display: flex;
@@ -45,7 +66,7 @@
         }
         .option:hover {
             background-color: #A9DFBF;
-            color: #000; /* Slightly darker text color on hover */
+            color: #000;
             transform: scale(1.02);
         }
         .option h3 {
@@ -67,9 +88,13 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome, {{ username }}</h1>
-        <p>Email: {{ email }}</p>
-        <p>User ID: {{ user_id }}</p>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        <div class="user-identifiers">
+            <p>Welcome, <span style="font-weight: bold;" id="username">{{ username }}</span></p>
+            <p>Email: <span style="font-style: italic;" id="email">{{ email }}</span></p>
+            <p>Role: <b><span style="color: #FFFDD0;" id="userRole">{{ user_role }}</span></b></p>
+            <p>User ID: <span style="text-decoration: underline;" id="userId">{{ user_id }}</span></p>
+        </div>
         
         <h2>Zero Trust Access and Configuration Page</h2>
         <p class="access-message">Please select one of the following options:</p>
@@ -101,7 +126,10 @@
             window.location.href = 'resource-selection';
         }
 
+        function logout() {
+            // Redirect to the /revokeToken route for logout
+            window.location.href = '/revokeToken';
+        }
     </script>
-
 </body>
 </html>

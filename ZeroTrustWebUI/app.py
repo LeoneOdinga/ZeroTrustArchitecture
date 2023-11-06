@@ -160,16 +160,17 @@ def home():
             print(f"\nDECODED TOKEN{token_info}")
 
             if token_is_valid():
-                # The token is valid, and you can proceed to access protected resources
                 if 'oidc_auth_profile' in session:
                     auth_profile = session['oidc_auth_profile']
                     username = auth_profile.get('name')
                     email = auth_profile.get('email')
                     user_id = auth_profile.get('sub')
-                    return render_template('home.html', username=username, email=email, user_id=user_id)
+                    #get the user role
+                    user_roles = extract_user_role()
+                    user_role = user_roles[0]
+                    return render_template('home.html', username=username, email=email, user_id=user_id, user_role=user_role)
                 else:
                     return "<h1>NOT AUTHORIZED!</h1>"
-                # The token is invalid
             else:
                 return "<h1>UNAUTHORIZED [INVALID ACCESS TOKEN]!!!</h1>"
         else:
