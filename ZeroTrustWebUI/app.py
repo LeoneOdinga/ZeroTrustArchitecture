@@ -16,6 +16,12 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 
+'''
+This section below contains the configuration of the flask OIDC and the keycloak OIDC
+as well as constants
+
+'''
+
 app.config['OIDC_SESSION_TYPE'] = 'null'
 
 app.config.update({
@@ -50,18 +56,24 @@ keycloak_openid = KeycloakOpenID(server_url="http://localhost:8080/auth/",
                                  client_id="ZeroTrustPlatform",
                                  realm_name="myrealm",
                                  client_secret_key="KEViiP0yTFDgjfxKee2Xg1hgaCDHAEqU")
+
+'''
+
+The section below contains the system views. They contain the various routes in the web UI and the functionalities
+that can be performed at each view
+
+'''
 #Main route
 @app.route('/')
 @oidc.require_login
 def index():
-    if oidc.user_loggedin and token_is_valid:
+    if oidc.user_loggedin and token_is_valid():
         return redirect(url_for('home'))
     else:
         return render_template('index.html')
     
 
 #create a route to revoke an access token and redirect to index.html page for the user to authenticate
-
 @app.route('/revokeToken')
 @oidc.require_login
 def revokeToken():
@@ -72,6 +84,7 @@ def revokeToken():
         return render_template('index.html')
     else:
         return "<h1>Failed to revoke the access token!<h1>"
+    
 #Login Route
 @app.route('/login')
 @oidc.require_login
@@ -84,36 +97,6 @@ def login():
         return response
     else:
         return render_template('index.html')
-
-# Logout route
-@app.route('/logout')
-@oidc.require_login
-def logout():
-    refresh_token = oidc.get_refresh_token()
-
-    if refresh_token is not None:
-        keycloak_openid.logout(refresh_token)
-    oidc.logout()
-
-    session.clear()
-
-    session.pop('access_token', None)
-
-    # Redirect to the Keycloak logout URL
-    redirect_url = request.url_root.strip('/')
-    keycloak_issuer = oidc.client_secrets.get('issuer')
-    keycloak_logout_url = '{}/protocol/openid-connect/logout'.format(
-        keycloak_issuer
-    )
-
-    # Provide the correct post_logout_redirect_uri to control where users are redirected after logout
-    post_logout_redirect_uri = 'http://localhost:5000/login'
-
-    return redirect('{}?redirect_uri={}&post_logout_redirect_uri={}'.format(
-        keycloak_logout_url,
-        redirect_url,
-        post_logout_redirect_uri  # Specify your post-logout URL here
-    ))
 
 #function check if the token in valid
 def token_is_valid():
@@ -157,6 +140,7 @@ def extract_user_role():
 
 # The home route where all the available services are located
 @app.route('/home')
+@oidc.require_login
 def home():
     if oidc.user_loggedin:
         access_token = oidc.get_access_token()
