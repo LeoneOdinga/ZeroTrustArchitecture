@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Privileged Access Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            margin: 0;
+        }
+
+        p {
+            margin-top: 10px;
+        }
+
+        form {
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input[type="text"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        select {
+            height: 36px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Privileged Access Management</h2>
+        <p>Just-in-Time Access To Privileged Resources</p>
+
+        <form method="POST" action="/privilegedAccess">
+            <label for="resource_name">Resource Name:</label>
+            <select id="resource_name" name="resource_name" required>
+                <option value="Resource 1">Resource 1</option>
+                <option value="Resource 2">Resource 2</option>
+                <option value="Resource 3">Resource 3</option>
+                <!-- Add more resource options as needed -->
+            </select>
+        
+            <label for="reason_for_access">Reason for Access:</label>
+            <textarea id="reason_for_access" name="reason_for_access" rows="4" cols="50" required></textarea>
+        
+            <label for="access_duration">Access Duration (in minutes, up to 100 minutes):</label>
+            <input type="number" id="access_duration" name="access_duration" min="1" max="100" required>
+        
+            <label for="approvers">Approvers (Select at least three):</label>
+            <select id="approvers" name="approvers" multiple required>
+                <option value="approver1@example.com">approver1@example.com</option>
+                <option value="approver2@example.com">approver2@example.com</option>
+                <option value="approver3@example.com">approver3@example.com</option>
+                <option value="approver4@example.com">approver4@example.com</option>
+                <!-- Add more approver options as needed -->
+            </select>
+            
+            <input type="submit" value="Submit Request">
+        </form>
+        
+    </div>
+
+    <script>
+        // Set the hidden field value to the current timestamp
+        document.getElementById("request_time").value = new Date().toISOString();
+    </script>
+</body>
+</html>

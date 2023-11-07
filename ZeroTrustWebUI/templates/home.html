@@ -103,15 +103,15 @@
                 <h3>01. Access Protected Resources</h3>
                 <p>Securely access sensitive data and services based on zero trust principles.</p>
             </div>
-            <div class="option" role="button" tabindex="0" aria-label="Configure Security Policies">
+            <div class="option" id="option2" role="button" tabindex="0" aria-label="Configure Security Policies" onclick="redirectToConfigurePolicies()">
                 <h3>02. Configure Security Policies</h3>
                 <p>Configure contextual security policies for Zero Trust Network Access.</p>
             </div>
-            <div class="option" role="button" tabindex="0" aria-label="Monitoring and logging">
+            <div class="option" id="option3" role="button" tabindex="0" aria-label="Monitoring and logging" onclick="redirectToMonitoring()">
                 <h3>03. Monitoring and logging</h3>
                 <p>Get full visibility of system logs and events.</p>
             </div>
-            <div class="option" role="button" tabindex="0" aria-label="Privileged Access Management">
+            <div class="option" id="option4" role="button" tabindex="0" aria-label="Privileged Access Management" onclick="redirectToPAM()">
                 <h3>04. Privileged Access Management</h3>
                 <p>Least Privileged just-in-time access for highly sensitive resources.</p>
             </div>
@@ -129,6 +129,18 @@
         function logout() {
             // Redirect to the /revokeToken route for logout
             window.location.href = '/revokeToken';
+        }
+
+        function redirectToConfigurePolicies(){
+            window.location.href = '/configurePolicies';
+        }
+
+        function redirectToMonitoring(){
+            window.location.href = '/monitoring-and-logging'
+        }
+
+        function redirectToPAM(){
+            window.location.href = '/privilegedAccess'
         }
     </script>
 </body>

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>View Access Requests</title>
+</head>
+<body>
+    <h1>Access Requests</h1>
+    <ul>
+        {% for request in access_requests %}
+            <li>
+                <strong>Resource Name:</strong> {{ request.resource_name }}<br>
+                <strong>Reason for Access:</strong> {{ request.reason_for_access }}<br>
+                <strong>Access Duration (minutes):</strong> {{ request.access_duration }}<br>
+                <strong>Approvers:</strong> {{ request.approvers }}<br>
+                <strong>Time of Request:</strong> {{ request.time_of_request.strftime('%Y-%m-%d %H:%M:%S') }}<br>
+                <strong>Requestor ID:</strong> {{ request.requestor_id }}<br>
+                <strong>Requestor Username:</strong> {{ request.requestor_username }}<br>
+                <strong>Request Status:</strong> {{ request.requestStatus }}<br>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
