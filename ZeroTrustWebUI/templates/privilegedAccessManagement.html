@@ -87,14 +87,12 @@
         
             <label for="access_duration">Access Duration (in minutes, up to 100 minutes):</label>
             <input type="number" id="access_duration" name="access_duration" min="1" max="100" required>
-        
-            <label for="approvers">Approvers (Select at least three):</label>
+
+            <label for="approvers">Approvers(Select at least three)</label>
             <select id="approvers" name="approvers" multiple required>
-                <option value="approver1@example.com">approver1@example.com</option>
-                <option value="approver2@example.com">approver2@example.com</option>
-                <option value="approver3@example.com">approver3@example.com</option>
-                <option value="approver4@example.com">approver4@example.com</option>
-                <!-- Add more approver options as needed -->
+                {% for email in email_addresses %}
+                <option value="{{ email }}">{{ email }}</option>
+                {% endfor %}
             </select>
             
             <input type="submit" value="Submit Request">

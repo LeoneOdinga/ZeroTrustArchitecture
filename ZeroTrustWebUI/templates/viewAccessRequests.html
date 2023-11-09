@@ -9,6 +9,7 @@
     <ul>
         {% for request in access_requests %}
             <li>
+                <strong>Request ID:</strong> {{ request.id }}<br>
                 <strong>Resource Name:</strong> {{ request.resource_name }}<br>
                 <strong>Reason for Access:</strong> {{ request.reason_for_access }}<br>
                 <strong>Access Duration (minutes):</strong> {{ request.access_duration }}<br>
@@ -19,6 +20,16 @@
                 <strong>Request Status:</strong> {{ request.requestStatus }}<br>
             </li>
         {% endfor %}
+        <h3>Approvers:</h3>
+                <ul>
+                    {% for approver in approvers %}
+                        <li>
+                            <strong>Approver ID:</strong> {{ approver.approverID }}<br>
+                            <strong>Approver Email:</strong> {{ approver.approverEmail }}<br>
+                            <strong>Approver Secret Share:</strong> {{ approver.approver_secret_share }}<br>
+                            <strong>Request ID:</strong> {{ approver.request_id }}<br>
+                        </li>
+                    {% endfor %}
     </ul>
 </body>
 </html>

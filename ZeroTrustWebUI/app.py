@@ -2,6 +2,8 @@ import json
 import sys
 from flask import Flask,render_template, request, jsonify, session, url_for,redirect, make_response
 import logging
+import tss,base64
+import math
 
 from flask import Flask, g
 from flask_oidc import OpenIDConnect
@@ -51,6 +53,21 @@ REGISTRATION_URL = f"{API_BASE_URL}/registrations"
 TOKEN_URL = f"{API_BASE_URL}/token"
 REVOCATION_URL = f"{API_BASE_URL}/logout"
 
+from keycloak import KeycloakAdmin
+from keycloak import KeycloakOpenIDConnection
+
+keycloak_connection = KeycloakOpenIDConnection(
+                        server_url="http://localhost:8080/auth/",
+                        username='admin',
+                        password='admin',
+                        realm_name="myrealm",
+                        user_realm_name="master",
+                        client_id="admin-cli",
+                        client_secret_key="Gd0BL0xq5BS4Tqd8Mu9qpYpc3fRvl9eY",
+                        verify=False)
+
+keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
+
 oidc = OpenIDConnect(app)
 
 # Configure client using the python-kyecloak library
@@ -74,8 +91,7 @@ class AccessRequest(db.Model):
     time_of_request = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     requestStatus = db.Column(db.String(20), default="pending")
-    approvers = db.Column(db.String(500), nullable=False)
-    approvers = db.relationship('Approver', back_populates='request')
+
 
 # Create a new database model for approvers
 class Approver(db.Model):
@@ -83,9 +99,7 @@ class Approver(db.Model):
     approverID = db.Column(db.String(100), nullable=False)
     approverEmail = db.Column(db.String(100), nullable=False)
     request_id = db.Column(db.Integer, db.ForeignKey('access_request.id'), nullable=False)
-    request = db.relationship('AccessRequest', back_populates='approvers')
     approver_secret_share = db.Column(db.String(750))
-
 
 '''
 
@@ -166,8 +180,15 @@ def extract_user_role():
     user_roles = resource_access.get('roles', [])
     return user_roles
 
+#function to generate shares from a secret key and return a list of shares
+def generate_secret_shares(threshold,num_shares,secret_key,identifier):
+    shares = tss.share_secret(threshold, num_shares, secret_key, identifier, tss.Hash.SHA256)
+    # Encode shares in Base64
+    base64_shares = [base64.b64encode(share).decode() for share in shares]
+
+    return base64_shares
+
 #function to construct shares from a secret key
-import tss,base64
 def generate_and_reconstruct_secret(threshold, num_shares, secret, identifier):
     # Generate shares
     shares = tss.share_secret(threshold, num_shares, secret, identifier, tss.Hash.SHA256)
@@ -187,6 +208,31 @@ def generate_and_reconstruct_secret(threshold, num_shares, secret, identifier):
         return reconstructed_secret
     except tss.TSSError:
         return None  # Handling error
+    
+def get_user_id_by_email(email_address):
+    # Call Keycloak Admin API to get user details
+    users = keycloak_admin.get_users({"email": email_address})
+
+    # Check if users list is not empty
+    if users:
+        user_id = users[0]['id']
+        return user_id
+    else:
+        return None  # Return None if no user found
+
+def get_client_role_members_emails(client_id, role_name):
+    # Get client role members
+    role_members = keycloak_admin.get_client_role_members(client_id, role_name=role_name)
+
+    # Initialize a list to store email addresses
+    email_list = []
+
+    # Iterate through the role members and extract email addresses
+    for member in role_members:
+        email = member.get('email', 'N/A')
+        email_list.append(email)
+
+    return email_list
 
 # The home route where all the available services are located
 @app.route('/home')
@@ -201,6 +247,49 @@ def home():
             print(f"\nINTROSPECTION RESULTS: {introspection_result}")
 
             userinfo = keycloak_openid.userinfo(access_token)
+
+            #testing extraction of userID from email address using keycloak admin
+
+            emailAddress = "userDemo1@leotech.cns"
+
+            print(f"User ID: {get_user_id_by_email(emailAddress)}")
+
+            encoded_base64_data = [
+    "c2stYXBwcgAAAAAAAAAAAAICAFEBf9xEr7H0a1VDoA0AvlJbeVb4EwIt9YO/gOY/nGEKEhbNqePl20yUMUlBsh8wC6iMnf7sqdxnoKmi1EyZDcL4sfaZ2PMM2Zs9rpCMd5HHoQk=",
+    "c2stYXBwcgAAAAAAAAAAAAICAFECYgwd2cJBf18p/oyv+3kZeTBEs5jhQ7TwtHLojF6pi6cd5khNFiqa9z0n6ZH8q+SI0ZryYKIofSxvx5m+uNnsCWFGnaocs+l5yepkwa+seq0=",
+    "c2stYXBwcgAAAAAAAAAAAAICAFEDabUqAhrbc1kPPfPKMWAneRLZ0+6l2FA8UfeldUvI/MikKtjcpAhptREFKeu4yyl9HE/4J4jkNqbdPyOjItDgYeX6V53llcdFHTU8Wkx8Mzg="
+]           
+            print(encoded_base64_data)
+                    # Reconstruct the secret from Base64-encoded shares
+            binary_shares = [base64.b64decode(share.encode()) for share in encoded_base64_data]
+
+            try:
+                # Recover the secret value
+                reconstructed_secret = tss.reconstruct_secret(binary_shares)
+                return reconstructed_secret
+            except tss.TSSError:
+                return None  # Handling error
+
+
+            print(generate_secret_shares(3,4,"testing","sk2"))
+
+            #dynamically query the keycloak API for the list of approvers to diaplay for the requestor
+            client_id = keycloak_admin.get_client_id("ZeroTrustPlatform")
+            role_name = "Policy Administrator"
+            email_addresses = get_client_role_members_emails(client_id, role_name)
+
+            print(f"Email Addresses for policy administrators{email_addresses}")
+
+            print(keycloak_admin.get_client_id("ZeroTrustPlatform"))
+
+            #testing how to get the client role members 
+
+            role = "Policy Administrator"
+            client_id = keycloak_admin.get_client_id("ZeroTrustPlatform")
+
+            print("PRINT OUT THE MEMBERS BELONGING TO THE SAME ROLE...")
+
+            print(get_client_role_members_emails(client_id,role))
 
             print(f"\n{userinfo}")
 
@@ -273,6 +362,29 @@ from datetime import datetime  # Import the datetime module
 
 @app.route('/privilegedAccess', methods=['GET', 'POST'])
 def privilegedAccess():
+    #dynamically query the keycloak API for the list of approvers to diaplay for the requestor
+    client_id = keycloak_admin.get_client_id("ZeroTrustPlatform")
+    role_name = "Policy Administrator"
+    email_addresses = get_client_role_members_emails(client_id, role_name)
+
+    #Outline the sharing of secret shares and the threshold percentage to be met
+
+    num_shares = len(email_addresses) #equal to the number of approvers 
+
+    threshold = math.floor(num_shares * 0.8) #define at least 80 % of threshold to be met before secret key reconstruction occurs
+
+    secret_key_identifier = "sk-appr"
+
+    testing_secret = "testingSecretKeytestingsecretkeytestingsecretkey" # for testing purposes. Ideally, the secret key would be generated by the resource requested for
+
+    secret_shares_list = generate_secret_shares(2,num_shares,testing_secret,secret_key_identifier)
+
+    print(f"LIST OF GENERATED SECRET SHARES: {secret_shares_list}")
+
+    if email_addresses is None:
+        # Handle the case where email_addresses could not be retrieved
+        email_addresses = []
+
     if request.method == 'POST':
         # Get form data
         resource_name = request.form['resource_name']
@@ -283,14 +395,16 @@ def privilegedAccess():
         requestor_username = session['oidc_auth_profile'].get('preferred_username')
         # Capture the time of the request
         time_of_request = datetime.now()
-        # Extract selected approvers (approvers is now a list)
+
+        # Extract selected approvers in a list
         selected_approvers = request.form.getlist('approvers')
-        # Convert the list of approvers to a JSON string
-        #approvers_json = json.dumps(selected_approvers)  # Convert to JSON string
 
         # Validate the access duration (between 1 and 100 minutes)
         if 1 <= access_duration <= 100:
             # Create a new access request and add it to the database
+
+            print("Selected Approvers:", selected_approvers)
+
             new_request = AccessRequest(
                 resource_name=resource_name,
                 reason_for_access=reason_for_access,
@@ -299,16 +413,28 @@ def privilegedAccess():
                 requestor_username=requestor_username,
                 time_of_request=time_of_request,
                 requestStatus='pending',  # Set the requestStatus to 'pending'
-                approvers=",".join(selected_approvers)
             )
+
             db.session.add(new_request)
             db.session.commit()
+
+             # Insert approver details
+            for index, approver_email in enumerate(selected_approvers):
+                approver_secret_share = secret_shares_list[index]  # Get the corresponding secret share
+                approver = Approver(
+                    approverID=get_user_id_by_email(approver_email),
+                    approverEmail=approver_email,
+                    request_id=new_request.id,
+                    approver_secret_share=approver_secret_share  # Assign the secret share to each approverID
+                )
+                db.session.add(approver)
+                db.session.commit()
 
             return render_template('success.html', message="Successfully received your request! Processing...")
         else:
             return "Invalid access duration. Please enter a value between 1 and 100 minutes."
 
-    return render_template('privilegedAccessManagement.html')
+    return render_template('privilegedAccessManagement.html',email_addresses=email_addresses)
 
 # Define a variable to store the generated secret
 generated_secret = "TEST"
@@ -333,10 +459,11 @@ def process_secret_key():
 @app.route('/viewAccessRequests')
 def view_access_requests():
     access_requests = AccessRequest.query.all()
+    approvers = Approver.query.all()
     requestor_id = session['oidc_auth_profile'].get('sub')
     print(requestor_id)
 
-    return render_template('viewAccessRequests.html', access_requests=access_requests)
+    return render_template('viewAccessRequests.html', access_requests=access_requests, approvers = approvers)
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
