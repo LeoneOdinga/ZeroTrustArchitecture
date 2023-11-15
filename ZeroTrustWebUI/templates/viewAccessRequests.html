@@ -13,7 +13,6 @@
                 <strong>Resource Name:</strong> {{ request.resource_name }}<br>
                 <strong>Reason for Access:</strong> {{ request.reason_for_access }}<br>
                 <strong>Access Duration (minutes):</strong> {{ request.access_duration }}<br>
-                <strong>Approvers:</strong> {{ request.approvers }}<br>
                 <strong>Time of Request:</strong> {{ request.time_of_request.strftime('%Y-%m-%d %H:%M:%S') }}<br>
                 <strong>Requestor ID:</strong> {{ request.requestor_id }}<br>
                 <strong>Requestor Username:</strong> {{ request.requestor_username }}<br>
@@ -28,6 +27,7 @@
                             <strong>Approver Email:</strong> {{ approver.approverEmail }}<br>
                             <strong>Approver Secret Share:</strong> {{ approver.approver_secret_share }}<br>
                             <strong>Request ID:</strong> {{ approver.request_id }}<br>
+                            <strong>APPROVER ACTION:</strong> {{ approver.approver_action }}<br>
                         </li>
                     {% endfor %}
     </ul>

@@ -1,6 +1,8 @@
 import json
+import secrets
+import string
 import sys
-from flask import Flask,render_template, request, jsonify, session, url_for,redirect, make_response
+from flask import Flask, flash,render_template, request, jsonify, session, url_for,redirect, make_response
 import logging
 import tss,base64
 import math
@@ -10,7 +12,7 @@ from flask_oidc import OpenIDConnect
 from keycloak import KeycloakAuthenticationError, KeycloakOpenID
 import time
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 from Networking import Networking
 
@@ -29,7 +31,7 @@ as well as constants
 app.config['OIDC_SESSION_TYPE'] = 'null'
 
 app.config.update({
-    'SECRET_KEY': 'KEViiP0yTFDgjfxKee2Xg1hgaCDHAEqU',
+    'SECRET_KEY': 'EK7UgoAPwxmh4svS9RUGrDlvskdTrwBN',
     'TESTING': True,
     'DEBUG': True,
     'OIDC_CLIENT_SECRETS': 'client_secrets.json',
@@ -44,7 +46,7 @@ app.config.update({
 KEYCLOAK_SERVER_URL = "http://localhost:8080/auth"
 KEYCLOAK_REALM = "myrealm"
 KEYCLOAK_CLIENT_ID = "ZeroTrustPlatform"
-KEYCLOAK_CLIENT_SECRET = "KEViiP0yTFDgjfxKee2Xg1hgaCDHAEqU"
+KEYCLOAK_CLIENT_SECRET = "EK7UgoAPwxmh4svS9RUGrDlvskdTrwBN"
 
 SERVER_URL = f"{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/.well-known/openid-configuration"
 API_BASE_URL = f"{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect"
@@ -63,7 +65,7 @@ keycloak_connection = KeycloakOpenIDConnection(
                         realm_name="myrealm",
                         user_realm_name="master",
                         client_id="admin-cli",
-                        client_secret_key="Gd0BL0xq5BS4Tqd8Mu9qpYpc3fRvl9eY",
+                        client_secret_key="BbZIq8BMy7GH3zp9oy1rORyAW2jS5Lej",
                         verify=False)
 
 keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
@@ -74,7 +76,7 @@ oidc = OpenIDConnect(app)
 keycloak_openid = KeycloakOpenID(server_url="http://localhost:8080/auth/",
                                  client_id="ZeroTrustPlatform",
                                  realm_name="myrealm",
-                                 client_secret_key="KEViiP0yTFDgjfxKee2Xg1hgaCDHAEqU")
+                                 client_secret_key=KEYCLOAK_CLIENT_SECRET)
 
 # Configuration for SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///privileged_access.db' 
@@ -100,6 +102,10 @@ class Approver(db.Model):
     approverEmail = db.Column(db.String(100), nullable=False)
     request_id = db.Column(db.Integer, db.ForeignKey('access_request.id'), nullable=False)
     approver_secret_share = db.Column(db.String(750))
+    approver_action = db.Column(db.String(20))
+
+
+RESOURCE_SECRET_KEY =''
 
 '''
 
@@ -208,6 +214,17 @@ def generate_and_reconstruct_secret(threshold, num_shares, secret, identifier):
         return reconstructed_secret
     except tss.TSSError:
         return None  # Handling error
+
+def reconstruct_secret_from_base64_shares(base64_shares):
+    # Reconstruct the secret from Base64-encoded shares
+    binary_shares = [base64.b64decode(share.encode()) for share in base64_shares]
+
+    try:
+        # Recover the secret value
+        reconstructed_secret = tss.reconstruct_secret(binary_shares)
+        return reconstructed_secret
+    except tss.TSSError:
+        return None  # Handling error
     
 def get_user_id_by_email(email_address):
     # Call Keycloak Admin API to get user details
@@ -247,49 +264,6 @@ def home():
             print(f"\nINTROSPECTION RESULTS: {introspection_result}")
 
             userinfo = keycloak_openid.userinfo(access_token)
-
-            #testing extraction of userID from email address using keycloak admin
-
-            emailAddress = "userDemo1@leotech.cns"
-
-            print(f"User ID: {get_user_id_by_email(emailAddress)}")
-
-            encoded_base64_data = [
-    "c2stYXBwcgAAAAAAAAAAAAICAFEBf9xEr7H0a1VDoA0AvlJbeVb4EwIt9YO/gOY/nGEKEhbNqePl20yUMUlBsh8wC6iMnf7sqdxnoKmi1EyZDcL4sfaZ2PMM2Zs9rpCMd5HHoQk=",
-    "c2stYXBwcgAAAAAAAAAAAAICAFECYgwd2cJBf18p/oyv+3kZeTBEs5jhQ7TwtHLojF6pi6cd5khNFiqa9z0n6ZH8q+SI0ZryYKIofSxvx5m+uNnsCWFGnaocs+l5yepkwa+seq0=",
-    "c2stYXBwcgAAAAAAAAAAAAICAFEDabUqAhrbc1kPPfPKMWAneRLZ0+6l2FA8UfeldUvI/MikKtjcpAhptREFKeu4yyl9HE/4J4jkNqbdPyOjItDgYeX6V53llcdFHTU8Wkx8Mzg="
-]           
-            print(encoded_base64_data)
-                    # Reconstruct the secret from Base64-encoded shares
-            binary_shares = [base64.b64decode(share.encode()) for share in encoded_base64_data]
-
-            try:
-                # Recover the secret value
-                reconstructed_secret = tss.reconstruct_secret(binary_shares)
-                return reconstructed_secret
-            except tss.TSSError:
-                return None  # Handling error
-
-
-            print(generate_secret_shares(3,4,"testing","sk2"))
-
-            #dynamically query the keycloak API for the list of approvers to diaplay for the requestor
-            client_id = keycloak_admin.get_client_id("ZeroTrustPlatform")
-            role_name = "Policy Administrator"
-            email_addresses = get_client_role_members_emails(client_id, role_name)
-
-            print(f"Email Addresses for policy administrators{email_addresses}")
-
-            print(keycloak_admin.get_client_id("ZeroTrustPlatform"))
-
-            #testing how to get the client role members 
-
-            role = "Policy Administrator"
-            client_id = keycloak_admin.get_client_id("ZeroTrustPlatform")
-
-            print("PRINT OUT THE MEMBERS BELONGING TO THE SAME ROLE...")
-
-            print(get_client_role_members_emails(client_id,role))
 
             print(f"\n{userinfo}")
 
@@ -362,22 +336,29 @@ from datetime import datetime  # Import the datetime module
 
 @app.route('/privilegedAccess', methods=['GET', 'POST'])
 def privilegedAccess():
-    #dynamically query the keycloak API for the list of approvers to diaplay for the requestor
+    #dynamically query the keycloak API for the list of approvers to display for the requestor
     client_id = keycloak_admin.get_client_id("ZeroTrustPlatform")
-    role_name = "Policy Administrator"
+    role_name = "Approver"
     email_addresses = get_client_role_members_emails(client_id, role_name)
 
     #Outline the sharing of secret shares and the threshold percentage to be met
 
     num_shares = len(email_addresses) #equal to the number of approvers 
 
+    print(f"NUMBER OF SHARES(email addresses): {num_shares}")
+
     threshold = math.floor(num_shares * 0.8) #define at least 80 % of threshold to be met before secret key reconstruction occurs
 
-    secret_key_identifier = "sk-appr"
+    print("Threshold: "+str(threshold))
 
-    testing_secret = "testingSecretKeytestingsecretkeytestingsecretkey" # for testing purposes. Ideally, the secret key would be generated by the resource requested for
+    secret_key_identifier = "SK-92"
 
-    secret_shares_list = generate_secret_shares(2,num_shares,testing_secret,secret_key_identifier)
+    global RESOURCE_SECRET_KEY
+
+    RESOURCE_SECRET_KEY = generate_secret_message(45)
+    
+    secret_shares_list = generate_secret_shares(threshold,num_shares,RESOURCE_SECRET_KEY,secret_key_identifier)
+
 
     print(f"LIST OF GENERATED SECRET SHARES: {secret_shares_list}")
 
@@ -430,32 +411,152 @@ def privilegedAccess():
                 db.session.add(approver)
                 db.session.commit()
 
-            return render_template('success.html', message="Successfully received your request! Processing...")
+            return redirect(url_for('approval_status'))
         else:
             return "Invalid access duration. Please enter a value between 1 and 100 minutes."
 
     return render_template('privilegedAccessManagement.html',email_addresses=email_addresses)
 
-# Define a variable to store the generated secret
-generated_secret = "TEST"
 
-@app.route('/processSecretKey', methods=['GET', 'POST'])
+@oidc.require_login
+@app.route('/testing')
+def testApproval():
+    #extract the approver's details 
+    if 'oidc_auth_profile' in session:
+        auth_profile = session['oidc_auth_profile']
+        username = auth_profile.get('name')
+        email = auth_profile.get('email')
+        user_id = auth_profile.get('sub')
+        user_role = extract_user_role()[0]
+
+    #check if the user is part of the approvers group
+    if user_role != "Approver":
+        return redirect(url_for('revokeToken'))
+    
+    # Retrieve the secret share for the logged-in approver from the database
+    approver = Approver.query.filter_by(approverID=user_id).order_by(Approver.id.desc()).first()
+    secret_share = approver.approver_secret_share if approver else None
+
+    access_requests = AccessRequest.query.order_by(AccessRequest.id.desc()).limit(1).all()  # Adjust 'limit' as needed
+
+    return render_template('apprPage.html', access_requests=access_requests, username=username, email=email, user_id=user_id, user_role=user_role, secret_share=secret_share)
+
+
+@app.route('/approve_request', methods=['POST'])
+def approve_request():
+    if request.method == 'POST':
+        data = request.json
+
+        # Extract details from the request
+        action = data.get('action')
+        approver_id = data.get('approverId')
+        secret_share = data.get('secretShare') #retrieve the secret share for all the approvers for computation
+
+        # Update the Approver record in the database
+        approver = Approver.query.filter_by(approverID=approver_id).order_by(Approver.id.desc()).first()
+        if approver:
+            approver.approver_action = 'approved' if action == 'approve' else 'rejected'
+            db.session.commit()
+
+            print("request approved... waiting for processing")
+            return 'Request Approved!'
+
+    return 'Invalid Request'
+
+@app.route('/approval_status')
+def approval_status():
+    latest_request = AccessRequest.query.order_by(AccessRequest.id.desc()).first()
+
+    if latest_request:
+        latest_request_id = latest_request.id
+
+        approvers_count = Approver.query.filter_by(request_id=latest_request_id).count()
+        approved_approvers = Approver.query.filter_by(request_id=latest_request_id, approver_action='approved').count()
+        pending_approvers = approvers_count - approved_approvers
+
+        approval_info = f'{approved_approvers}/{approvers_count} approvers approved, {pending_approvers} pending'
+        reconstructed_secret = None
+
+        if pending_approvers == 0:
+            message = 'All approvers have approved the request'
+            # Retrieving secret shares for all approved approvers
+            approved_approver_shares = Approver.query.filter_by(request_id=latest_request_id, approver_action='approved').all()
+            secret_shares = [approver.approver_secret_share for approver in approved_approver_shares]
+
+            # Reconstructing the secret key from secret shares
+            reconstructed_secret = reconstruct_secret_from_base64_shares(secret_shares)
+        else:
+            message = ''
+
+        return render_template('approval_status.html', approval_info=approval_info, message=message, reconstructed_secret=reconstructed_secret)
+
+    return render_template('no_requests.html')  # Render a template if no requests exist
+
+@app.route('/enterSecretKey', methods=['GET', 'POST'])
 def process_secret_key():
-    global generated_secret
 
     if request.method == 'POST':
         # Get the secret key entered by the user
         entered_secret_key = request.form.get('secret_key')
 
-        if generated_secret is not None and entered_secret_key == generated_secret:
-            # Redirect to the hidden page if the secret key matches
-            return redirect(url_for('hidden_page'))
-        else:
-            # If the secret key doesn't match, display an error message
-            return "Error: Invalid secret key"
+        if entered_secret_key:
+            response = requests.post('http://127.0.0.1:5000/hidden_resource',data={'secret_key': entered_secret_key})
 
-    return render_template('enterKey.html')
+            if response.text == 'Valid':
+                return redirect('/protected_page')
+            else:
+                return "INVALID SECRET KEY"
+            
+    return render_template('enterSecretKey.html')
 
+def generate_secret_message(length=20):
+    alphabet = string.ascii_letters + string.digits  # Only letters and digits
+    secret_message = ''.join(secrets.choice(alphabet) for _ in range(length))
+    return secret_message
+
+@app.route('/hidden_resource', methods=['POST'])
+def hidden_resource():
+    entered_secret_key = request.form.get('secret_key')
+
+    print (f"ENTERED SECRET MESSAGE: {entered_secret_key}")
+    #extract the randomized secret key from the PAM endpoint
+
+    secret_message = RESOURCE_SECRET_KEY # assign it to the reandomized secret generated at the PAM endpoint
+
+    print(f"SECRET MESSAGE: {secret_message}")
+
+    print(secret_message)
+    if entered_secret_key == secret_message:
+        return 'Valid'
+    else:
+        return 'Invalid'
+
+@app.route('/protected_page')
+def protected_page():
+    # Retrieve the access duration from the database for the latest approved request ID
+
+    latest_access_request = AccessRequest.query.order_by(AccessRequest.id.desc()).limit(1).all()  # Adjust 'limit' as needed
+
+    if latest_access_request:
+
+        access_duration = 0
+
+        for request in latest_access_request:
+            access_duration = request.access_duration
+
+            # Get the current time
+            current_time = datetime.now()
+            
+            # Calculate the expiration time by adding access duration to the current time
+            expiration_time = current_time + timedelta(minutes=access_duration)
+
+            return render_template('protectedPage.html', expiration_time=expiration_time)
+
+    else:
+        print("No PAM Requests Found") 
+        return "No REQUESTS FOUND!"
+
+@oidc.require_login
 @app.route('/viewAccessRequests')
 def view_access_requests():
     access_requests = AccessRequest.query.all()

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Protected Page</title>
+    <style>
+        /* Your CSS styles for the protected page */
+        /* Styling example */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        .remaining-time {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Protected Page</h1>
+
+        <div class="remaining-time" id="remainingTime">Calculating...</div>
+
+        <script>
+            // Function to calculate and update remaining time
+            function updateRemainingTime() {
+                var currentTime = new Date();
+                var expirationTime = new Date('{{ expiration_time }}');
+
+                var timeDiff = expirationTime.getTime() - currentTime.getTime();
+                var totalSeconds = Math.floor(timeDiff / 1000); // Calculate total remaining seconds
+
+                var minutes = Math.floor(totalSeconds / 60);
+                var seconds = totalSeconds % 60;
+
+                var remainingTimeElement = document.getElementById('remainingTime');
+                remainingTimeElement.textContent = "Time remaining: " + minutes + " minutes " + seconds + " seconds"; // Display time in minutes and seconds
+
+                // Redirect when the countdown reaches 0 minutes and 0 seconds
+                if (minutes <= 0 && seconds <= 0) {
+                    window.location.href = '/revokeToken'; // Redirect to the login page
+                }
+
+                // Update the remaining time every second
+                setTimeout(updateRemainingTime, 1000);
+            }
+
+            // Call the function to initiate the countdown
+            updateRemainingTime();
+        </script>
+    </div>
+</body>
+</html>

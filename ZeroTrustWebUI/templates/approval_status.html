@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PAM Request Status</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .approval-info, .message {
+            margin-bottom: 15px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .view-resource-btn {
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .view-resource-btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PAM Request Status</h1>
+
+        <div class="approval-info">
+            <p>{{ approval_info }}</p>
+        </div>
+
+        <div class="message">
+            <p>{{ message }}</p>
+        </div>
+
+        <!-- Heading for reconstructed secret key -->
+        <h2>Reconstructed Secret Key</h2>
+        
+        <!-- Text area for reconstructed secret key -->
+        <textarea id="reconstructedSecretKey" rows="4" cols="50" placeholder="Reconstructed Secret Key" readonly>{{reconstructed_secret}}</textarea>
+
+        <!-- Button to view protected resource -->
+        <button class="view-resource-btn" onclick="viewProtectedResource()">View Protected Resource</button>
+
+        <script>
+            function viewProtectedResource() {
+                window.location.href = "/enterSecretKey";
+            }
+        </script>
+
+    </div>
+</body>
+</html>
