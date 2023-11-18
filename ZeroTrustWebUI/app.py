@@ -1,7 +1,7 @@
 import secrets
 import string
 import sys
-from flask import Flask, flash,render_template, request, jsonify, session, url_for,redirect, make_response
+from flask import Flask,render_template, request, jsonify, session, url_for,redirect, make_response
 import logging
 import tss,base64
 import math
@@ -13,6 +13,9 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import requests
 from Networking import Networking
+from keycloak import KeycloakAdmin
+from keycloak import KeycloakOpenIDConnection
+from keycloak_config import *
 
 sys.path.insert(0,'..')
 
@@ -29,7 +32,7 @@ as well as constants
 app.config['OIDC_SESSION_TYPE'] = 'null'
 
 app.config.update({
-    'SECRET_KEY': 'VMrbNm87ne2LxCAKnYLFhMaP7UiOuZ7l',
+    'SECRET_KEY': 'nri0gDKtN8iSvw1iVJqrsqsATKLbJJta',
     'TESTING': True,
     'DEBUG': True,
     'OIDC_CLIENT_SECRETS': 'client_secrets.json',
@@ -40,25 +43,6 @@ app.config.update({
     'OIDC_TOKEN_TYPE_HINT': 'access_token',
     'OIDC_INTROSPECTION_AUTH_METHOD': 'client_secret_post'
 })
-
-#CONSTANNTS FOR KEYCLOAK CONFIGURATION 
-KEYCLOAK_SERVER_URL = "http://localhost:8080/auth"
-KEYCLOAK_REALM = "myrealm"
-KEYCLOAK_CLIENT_ID = "ZeroTrustPlatform"
-
-# SECRETS: CONSTANTS 
-KEYCLOAK_CLIENT_SECRET = "VMrbNm87ne2LxCAKnYLFhMaP7UiOuZ7l"
-KEYCLOAK_ADMIN_CLIENT_SECRET = "Zk4wkbZjbUyZtgwgmCQVPjD52YF0Y4qT"
-
-SERVER_URL = f"{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/.well-known/openid-configuration"
-API_BASE_URL = f"{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect"
-AUTHORIZATION_URL = f"{API_BASE_URL}/auth"
-REGISTRATION_URL = f"{API_BASE_URL}/registrations"
-TOKEN_URL = f"{API_BASE_URL}/token"
-REVOCATION_URL = f"{API_BASE_URL}/logout"
-
-from keycloak import KeycloakAdmin
-from keycloak import KeycloakOpenIDConnection
 
 keycloak_connection = KeycloakOpenIDConnection(
                         server_url="http://localhost:8080/auth/",
@@ -74,10 +58,10 @@ keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 
 oidc = OpenIDConnect(app)
 
-# Configure client using the python-kyecloak library
-keycloak_openid = KeycloakOpenID(server_url="http://localhost:8080/auth/",
-                                 client_id="ZeroTrustPlatform",
-                                 realm_name="myrealm",
+# Configure client using the python-kcloak library
+keycloak_openid = KeycloakOpenID(server_url=KEYCLOAK_SERVER_URL,
+                                 client_id=KEYCLOAK_CLIENT_ID,
+                                 realm_name=KEYCLOAK_REALM,
                                  client_secret_key=KEYCLOAK_CLIENT_SECRET)
 
 # Configuration for SQLAlchemy
