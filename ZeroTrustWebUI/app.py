@@ -1,4 +1,3 @@
-import json
 import secrets
 import string
 import sys
@@ -10,7 +9,6 @@ import math
 from flask import Flask, g
 from flask_oidc import OpenIDConnect
 from keycloak import KeycloakAuthenticationError, KeycloakOpenID
-import time
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import requests
@@ -31,7 +29,7 @@ as well as constants
 app.config['OIDC_SESSION_TYPE'] = 'null'
 
 app.config.update({
-    'SECRET_KEY': 'EK7UgoAPwxmh4svS9RUGrDlvskdTrwBN',
+    'SECRET_KEY': 'VMrbNm87ne2LxCAKnYLFhMaP7UiOuZ7l',
     'TESTING': True,
     'DEBUG': True,
     'OIDC_CLIENT_SECRETS': 'client_secrets.json',
@@ -43,10 +41,14 @@ app.config.update({
     'OIDC_INTROSPECTION_AUTH_METHOD': 'client_secret_post'
 })
 
+#CONSTANNTS FOR KEYCLOAK CONFIGURATION 
 KEYCLOAK_SERVER_URL = "http://localhost:8080/auth"
 KEYCLOAK_REALM = "myrealm"
 KEYCLOAK_CLIENT_ID = "ZeroTrustPlatform"
-KEYCLOAK_CLIENT_SECRET = "EK7UgoAPwxmh4svS9RUGrDlvskdTrwBN"
+
+# SECRETS: CONSTANTS 
+KEYCLOAK_CLIENT_SECRET = "VMrbNm87ne2LxCAKnYLFhMaP7UiOuZ7l"
+KEYCLOAK_ADMIN_CLIENT_SECRET = "Zk4wkbZjbUyZtgwgmCQVPjD52YF0Y4qT"
 
 SERVER_URL = f"{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/.well-known/openid-configuration"
 API_BASE_URL = f"{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect"
@@ -65,7 +67,7 @@ keycloak_connection = KeycloakOpenIDConnection(
                         realm_name="myrealm",
                         user_realm_name="master",
                         client_id="admin-cli",
-                        client_secret_key="BbZIq8BMy7GH3zp9oy1rORyAW2jS5Lej",
+                        client_secret_key=KEYCLOAK_ADMIN_CLIENT_SECRET,
                         verify=False)
 
 keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
