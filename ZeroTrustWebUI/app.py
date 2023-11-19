@@ -1,11 +1,7 @@
-import secrets
-import string
 import sys
 from flask import Flask,render_template, request, jsonify, session, url_for,redirect, make_response
 import logging
-import tss,base64
 import math
-
 from flask import Flask, g
 from flask_oidc import OpenIDConnect
 from keycloak import KeycloakAuthenticationError, KeycloakOpenID
@@ -17,6 +13,8 @@ from keycloak import KeycloakAdmin
 from keycloak import KeycloakOpenIDConnection
 import re, uuid
 from keycloak_config import *
+from PAM import PAM
+from Keycloak_functions import *
 
 sys.path.insert(0,'..')
 
@@ -94,6 +92,8 @@ class Approver(db.Model):
 
 RESOURCE_SECRET_KEY =''
 
+THRESHOLD = None
+
 '''
 
 The section below contains the system views. They contain the various routes in the web UI and the functionalities
@@ -104,7 +104,7 @@ that can be performed at each view
 @app.route('/')
 @oidc.require_login
 def index():
-    if oidc.user_loggedin and token_is_valid():
+    if oidc.user_loggedin and token_is_valid(oidc,keycloak_openid):
         return redirect(url_for('home'))
     else:
         return render_template('index.html')
@@ -126,117 +126,12 @@ def revokeToken():
 def login():
     token = oidc.get_access_token()
     response = make_response(redirect(url_for('home')))
-    if token_is_valid:
+    if token_is_valid(oidc,keycloak_openid):
         response.set_cookie('access_token', token['access_token'])
         session['access_token'] = token['access_token']  
         return response
     else:
         return render_template('index.html')
-
-#function chech if the token is valid
-def token_is_valid():
-    #get the current access token from the oidc
-    access_token = oidc.get_access_token()
-    #introspect the token to make sure that it is valid
-    introspection_result = keycloak_openid.introspect(access_token)
-
-    if introspection_result.get("active"):
-        return True
-    else:
-        return False
-
-# create a function to revoke an access token and check if the revocation was a success
-def revoke_token(client_id, client_secret, refresh_token, revocation_url):
-    data = {
-        "client_id": client_id,
-        "client_secret": client_secret,
-        "refresh_token": refresh_token
-    }
-
-    response = requests.post(revocation_url, data=data)
-
-    if response.status_code == 204:
-        return True  # Token revocation was successful
-    else:
-        return False  # Token revocation failed
-
-#Extract the list of role mappings for the specified user's access token 
-def extract_user_role():
-    #get the user's current access token
-    access_token = oidc.get_access_token()
-
-    # Introspect the access token to ensure it's valid
-    introspection_result = keycloak_openid.introspect(access_token)
-
-    #From the access token, return the list of user's roles 
-    resource_access = introspection_result.get('resource_access', {}).get('ZeroTrustPlatform', {})
-    user_roles = resource_access.get('roles', [])
-    return user_roles
-
-#function to generate shares from a secret key and return a list of shares
-def generate_secret_shares(threshold,num_shares,secret_key,identifier):
-    shares = tss.share_secret(threshold, num_shares, secret_key, identifier, tss.Hash.SHA256)
-    # Encode shares in Base64
-    base64_shares = [base64.b64encode(share).decode() for share in shares]
-
-    return base64_shares
-
-#function to construct shares from a secret key
-def generate_and_reconstruct_secret(threshold, num_shares, secret, identifier):
-    # Generate shares
-    shares = tss.share_secret(threshold, num_shares, secret, identifier, tss.Hash.SHA256)
-
-    # Encode shares in Base64
-    base64_shares = [base64.b64encode(share).decode() for share in shares]
-
-
-    print(base64_shares)
-
-    # Reconstruct the secret from Base64-encoded shares
-    binary_shares = [base64.b64decode(share.encode()) for share in base64_shares]
-
-    try:
-        # Recover the secret value
-        reconstructed_secret = tss.reconstruct_secret(binary_shares)
-        return reconstructed_secret
-    except tss.TSSError:
-        return None  # Handling error
-
-def reconstruct_secret_from_base64_shares(base64_shares):
-    # Reconstruct the secret from Base64-encoded shares
-    binary_shares = [base64.b64decode(share.encode()) for share in base64_shares]
-
-    try:
-        # Recover the secret value
-        reconstructed_secret = tss.reconstruct_secret(binary_shares)
-        return reconstructed_secret
-    except tss.TSSError:
-        return None  # Handling error
-    
-def get_user_id_by_email(email_address):
-    # Call Keycloak Admin API to get user details
-    users = keycloak_admin.get_users({"email": email_address})
-
-    # Check if users list is not empty
-    if users:
-        user_id = users[0]['id']
-        return user_id
-    else:
-        return None  # Return None if no user found
-
-def get_client_role_members_emails(client_id, role_name):
-    # Get client role members
-    role_members = keycloak_admin.get_client_role_members(client_id, role_name=role_name)
-
-    # Initialize a list to store email addresses
-    email_list = []
-
-    # Iterate through the role members and extract email addresses
-    for member in role_members:
-        email = member.get('email', 'N/A')
-        email_list.append(email)
-
-    return email_list
 
 def get_mac_details(mac_address):
      
@@ -302,20 +197,20 @@ def home():
 
             mac_address = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
 
-            # Get vendor details for the extracted MAC address
+            """ # Get vendor details for the extracted MAC address
             try:
                 vendor_details = get_mac_details(mac_address)
                 print("Vendor Details for MAC Address", mac_address, ":", vendor_details)
             except Exception as e:
                 print(e)
 
-            print(mac_address)
+            print(mac_address) """
 
             print(f"Your IP Address is: {ip_addr}")
 
             print(f"KEYCLOAK EVENTS: {keycloak_admin.get_events()}")
 
-            # Get the public IP address
+            """ # Get the public IP address
             public_ip = get_public_ip()
             if public_ip:
                 print(f"The public IP address of the device is: {public_ip}")
@@ -323,7 +218,7 @@ def home():
                 print("Unable to retrieve the public IP address.")
 
             
-            print(f"LOCATION INFO: {get_location(public_ip)}")
+            print(f"LOCATION INFO: {get_location(public_ip)}") """
 
 
             # Decode Token
@@ -333,14 +228,14 @@ def home():
 
             print(f"\nDECODED TOKEN{token_info}")
 
-            if token_is_valid():
+            if token_is_valid(oidc,keycloak_openid):
                 if 'oidc_auth_profile' in session:
                     auth_profile = session['oidc_auth_profile']
                     username = auth_profile.get('name')
                     email = auth_profile.get('email')
                     user_id = auth_profile.get('sub')
                     #get the user role
-                    user_roles = extract_user_role()
+                    user_roles = extract_user_role(oidc,keycloak_openid)
                     user_role = user_roles[0]
 
                     print(keycloak_admin.get_bruteforce_detection_status(user_id))
@@ -400,31 +295,23 @@ def privilegedAccess():
     #dynamically query the keycloak API for the list of approvers to display for the requestor
     client_id = keycloak_admin.get_client_id("ZeroTrustPlatform")
     role_name = "Approver"
-    email_addresses = get_client_role_members_emails(client_id, role_name)
-
-    #Outline the sharing of secret shares and the threshold percentage to be met
+    email_addresses = get_client_role_members_emails(keycloak_admin,client_id, role_name)
 
     num_shares = len(email_addresses) #equal to the number of approvers 
 
-    print(f"NUMBER OF SHARES(email addresses): {num_shares}")
+    global THRESHOLD
 
-    threshold = math.floor(num_shares * 0.8) #define at least 80 % of threshold to be met before secret key reconstruction occurs
+    THRESHOLD = math.floor(num_shares * 0.8) #define at least 80 % of threshold to be met before secret key reconstruction occurs
 
-    print("Threshold: "+str(threshold))
-
-    secret_key_identifier = "SK-92"
+    secret_key_identifier = PAM.generate_secret_message(4)
 
     global RESOURCE_SECRET_KEY
 
-    RESOURCE_SECRET_KEY = generate_secret_message(45)
+    RESOURCE_SECRET_KEY = PAM.generate_secret_message(45)
     
-    secret_shares_list = generate_secret_shares(threshold,num_shares,RESOURCE_SECRET_KEY,secret_key_identifier)
-
-
-    print(f"LIST OF GENERATED SECRET SHARES: {secret_shares_list}")
+    secret_shares_list = PAM.generate_secret_shares(THRESHOLD,num_shares,RESOURCE_SECRET_KEY,secret_key_identifier)
 
     if email_addresses is None:
-        # Handle the case where email_addresses could not be retrieved
         email_addresses = []
 
     if request.method == 'POST':
@@ -445,8 +332,6 @@ def privilegedAccess():
         if 1 <= access_duration <= 100:
             # Create a new access request and add it to the database
 
-            print("Selected Approvers:", selected_approvers)
-
             new_request = AccessRequest(
                 resource_name=resource_name,
                 reason_for_access=reason_for_access,
@@ -464,7 +349,7 @@ def privilegedAccess():
             for index, approver_email in enumerate(selected_approvers):
                 approver_secret_share = secret_shares_list[index]  # Get the corresponding secret share
                 approver = Approver(
-                    approverID=get_user_id_by_email(approver_email),
+                    approverID=get_user_id_by_email(keycloak_admin,approver_email),
                     approverEmail=approver_email,
                     request_id=new_request.id,
                     approver_secret_share=approver_secret_share  # Assign the secret share to each approverID
@@ -488,7 +373,7 @@ def testApproval():
         username = auth_profile.get('name')
         email = auth_profile.get('email')
         user_id = auth_profile.get('sub')
-        user_role = extract_user_role()[0]
+        user_role = extract_user_role(oidc,keycloak_openid)[0]
 
     #check if the user is part of the approvers group
     if user_role != "Approver":
@@ -496,12 +381,12 @@ def testApproval():
     
     # Retrieve the secret share for the logged-in approver from the database
     approver = Approver.query.filter_by(approverID=user_id).order_by(Approver.id.desc()).first()
+
     secret_share = approver.approver_secret_share if approver else None
 
     access_requests = AccessRequest.query.order_by(AccessRequest.id.desc()).limit(1).all()  # Adjust 'limit' as needed
 
     return render_template('apprPage.html', access_requests=access_requests, username=username, email=email, user_id=user_id, user_role=user_role, secret_share=secret_share)
-
 
 @app.route('/approve_request', methods=['POST'])
 def approve_request():
@@ -524,7 +409,7 @@ def approve_request():
 
     return 'Invalid Request'
 
-@app.route('/approval_status')
+@app.route('/approval_status', methods=['GET','POST'])
 def approval_status():
     latest_request = AccessRequest.query.order_by(AccessRequest.id.desc()).first()
 
@@ -536,7 +421,31 @@ def approval_status():
         pending_approvers = approvers_count - approved_approvers
 
         approval_info = f'{approved_approvers}/{approvers_count} approvers approved, {pending_approvers} pending'
+
+        APPROVAL_TIME = 1
+
+        current_time =datetime.now()
+
+        expiration_time = current_time + timedelta(minutes=APPROVAL_TIME)
+
         reconstructed_secret = None
+
+        if request.method == 'POST':
+            data = request.json
+            action = data.get('action')
+
+            if action == 'reconstruct_secret' and approvers_count == THRESHOLD:
+                # Retrieving secret shares for all approved approvers
+                approved_approver_shares = Approver.query.filter_by(request_id=latest_request_id, approver_action='approved').all()
+                secret_shares = [approver.approver_secret_share for approver in approved_approver_shares]
+                reconstructed_secret = PAM.reconstruct_secret_from_base64_shares(secret_shares)
+
+                print(reconstructed_secret)
+                
+                # Return the reconstructed secret in JSON format
+                return jsonify({'reconstructed_secret': reconstructed_secret})
+            else:
+                return "Approvers count has not reached threshold!"
 
         if pending_approvers == 0:
             message = 'All approvers have approved the request'
@@ -545,11 +454,11 @@ def approval_status():
             secret_shares = [approver.approver_secret_share for approver in approved_approver_shares]
 
             # Reconstructing the secret key from secret shares
-            reconstructed_secret = reconstruct_secret_from_base64_shares(secret_shares)
+            reconstructed_secret = PAM.reconstruct_secret_from_base64_shares(secret_shares)
         else:
             message = ''
 
-        return render_template('approval_status.html', approval_info=approval_info, message=message, reconstructed_secret=reconstructed_secret)
+        return render_template('approval_status.html', approval_info=approval_info, message=message, reconstructed_secret=reconstructed_secret,threshold=THRESHOLD,expiration_time=expiration_time)
 
     return render_template('no_requests.html')  # Render a template if no requests exist
 
@@ -569,11 +478,6 @@ def process_secret_key():
                 return "INVALID SECRET KEY"
             
     return render_template('enterSecretKey.html')
-
-def generate_secret_message(length=20):
-    alphabet = string.ascii_letters + string.digits  # Only letters and digits
-    secret_message = ''.join(secrets.choice(alphabet) for _ in range(length))
-    return secret_message
 
 @app.route('/hidden_resource', methods=['POST'])
 def hidden_resource():

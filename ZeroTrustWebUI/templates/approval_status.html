@@ -56,6 +56,12 @@
             <p>{{ approval_info }}</p>
         </div>
 
+        <div class="approval-info">
+            <p>At least {{ threshold }} approvers(80%) needed to reconstruct the secret key.</p>
+        </div>
+
+        <div class="remaining-time" id="remainingTime">Time Left: </div>
+
         <div class="message">
             <p>{{ message }}</p>
         </div>
@@ -73,8 +79,78 @@
             function viewProtectedResource() {
                 window.location.href = "/enterSecretKey";
             }
+            function updateRemainingTime() {
+                var currentTime = new Date();
+                var expirationTime = new Date('{{ expiration_time }}');
+        
+                var timeDiff = expirationTime.getTime() - currentTime.getTime();
+                var totalSeconds = Math.floor(timeDiff / 1000);
+        
+                if (totalSeconds <= 0) {
+                    document.getElementById('remainingTime').textContent = "Time remaining: 0 minutes 0 seconds";
+                    reconstructSecret();
+                } else {
+                    var minutes = Math.floor(totalSeconds / 60);
+                    var seconds = totalSeconds % 60;
+        
+                    var remainingTimeElement = document.getElementById('remainingTime');
+                    remainingTimeElement.textContent = "Time remaining: " + minutes + " minutes " + seconds + " seconds";
+        
+                    sessionStorage.setItem('expirationTime', expirationTime.getTime()); // Store expiration time
+                    setTimeout(updateRemainingTime, 1000);
+                }
+            }
+        
+            function getStoredExpirationTime() {
+                var storedExpirationTime = sessionStorage.getItem('expirationTime');
+                return storedExpirationTime ? parseInt(storedExpirationTime) : null;
+            }
+        
+            function startCountdown() {
+                var storedExpirationTime = getStoredExpirationTime();
+        
+                if (storedExpirationTime) {
+                    var currentTime = new Date().getTime();
+                    var remainingTime = storedExpirationTime - currentTime;
+        
+                    if (remainingTime > 0) {
+                        setTimeout(updateRemainingTime, remainingTime);
+                    } else {
+                        document.getElementById('remainingTime').textContent = "Time remaining: 0 minutes 0 seconds";
+                        reconstructSecret();
+                    }
+                } else {
+                    updateRemainingTime();
+                }
+            }
+            function reconstructSecret() {
+                fetch('/approval_status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'reconstruct_secret' }),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Reconstructed secret:', data.reconstructed_secret);
+                    // Update the UI with the reconstructed secret
+                    document.getElementById('reconstructedSecretKey').value = data.reconstructed_secret;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle any errors here
+                });
+            }
+        
+            startCountdown();
         </script>
-
+        
     </div>
 </body>
 </html>
