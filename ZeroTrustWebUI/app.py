@@ -59,7 +59,7 @@ keycloak_admin = KeycloakAdmin(connection=keycloak_connection)
 oidc = OpenIDConnect(app)
 
 # Configure client using the python-kcloak library
-keycloak_openid = KeycloakOpenID(server_url=KEYCLOAK_SERVER_URL,
+keycloak_openid = KeycloakOpenID(server_url="http://localhost:8080/auth/",
                                  client_id=KEYCLOAK_CLIENT_ID,
                                  realm_name=KEYCLOAK_REALM,
                                  client_secret_key=KEYCLOAK_CLIENT_SECRET)
@@ -551,11 +551,11 @@ def view_access_requests():
     print(requestor_id)
 
     return render_template('viewAccessRequests.html', access_requests=access_requests, approvers = approvers)
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     app.run(debug=True)
-
 
 
 
