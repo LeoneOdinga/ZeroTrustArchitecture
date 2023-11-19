@@ -15,6 +15,7 @@ import requests
 from Networking import Networking
 from keycloak import KeycloakAdmin
 from keycloak import KeycloakOpenIDConnection
+import re, uuid
 from keycloak_config import *
 
 sys.path.insert(0,'..')
@@ -237,7 +238,46 @@ def get_client_role_members_emails(client_id, role_name):
 
     return email_list
 
+def get_mac_details(mac_address):
+     
+    # We will use an API to get the vendor details
+    url = "https://api.macvendors.com/"
+     
+    # Use get method to fetch details
+    response = requests.get(url+mac_address)
+    if response.status_code != 200:
+        raise Exception("[!] Invalid MAC Address!")
+    return response.content.decode()
+
+def get_public_ip():
+    try:
+        # Make an HTTP GET request to retrieve the public IP address
+        response = requests.get('https://api.ipify.org')
+        
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Extract and return the public IP address from the response
+            return response.text
+        else:
+            print(f"Failed to retrieve public IP. Status code: {response.status_code}")
+    except requests.RequestException as e:
+        print(f"Request Exception: {e}")
+    
+    return None  # Return None if unable to retrieve the public IP
+
+def get_location(ip_address):
+    response = requests.get(f'https://ipapi.co/{ip_address}/json/').json()
+    location_data = {
+        "ip": ip_address,
+        "city": response.get("city"),
+        "region": response.get("region"),
+        "country": response.get("country_name")
+    }
+    return location_data
+
+
 # The home route where all the available services are located
+ 
 @app.route('/home')
 def home():
     try:
@@ -247,11 +287,44 @@ def home():
             # Introspect the access token to ensure it's valid
             introspection_result = keycloak_openid.introspect(access_token)
 
-            print(f"\nINTROSPECTION RESULTS: {introspection_result}")
+            print(f"\nTOKEN INTROSPECTION RESULTS: {introspection_result}")
 
             userinfo = keycloak_openid.userinfo(access_token)
 
-            print(f"\n{userinfo}")
+            print(f"\nUSER INFO: {userinfo}")
+
+            ip_addr = request.environ['REMOTE_ADDR']
+
+            # joins elements of getnode() after each 2 digits.
+            # using regex expression
+            print ("The MAC address in formatted and less complex way is : ", end="")
+            print (':'.join(re.findall('..', '%012x' % uuid.getnode())))
+
+            mac_address = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
+
+            # Get vendor details for the extracted MAC address
+            try:
+                vendor_details = get_mac_details(mac_address)
+                print("Vendor Details for MAC Address", mac_address, ":", vendor_details)
+            except Exception as e:
+                print(e)
+
+            print(mac_address)
+
+            print(f"Your IP Address is: {ip_addr}")
+
+            print(f"KEYCLOAK EVENTS: {keycloak_admin.get_events()}")
+
+            # Get the public IP address
+            public_ip = get_public_ip()
+            if public_ip:
+                print(f"The public IP address of the device is: {public_ip}")
+            else:
+                print("Unable to retrieve the public IP address.")
+
+            
+            print(f"LOCATION INFO: {get_location(public_ip)}")
+
 
             # Decode Token
             KEYCLOAK_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----\n" + keycloak_openid.public_key() + "\n-----END PUBLIC KEY-----"
@@ -269,6 +342,8 @@ def home():
                     #get the user role
                     user_roles = extract_user_role()
                     user_role = user_roles[0]
+
+                    print(keycloak_admin.get_bruteforce_detection_status(user_id))
                     return render_template('home.html', username=username, email=email, user_id=user_id, user_role=user_role)
                 else:
                     return "<h1>NOT AUTHORIZED!</h1>"
