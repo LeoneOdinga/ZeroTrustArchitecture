@@ -278,15 +278,21 @@ def receive_and_process_access_request():
 def resource_selection():
     if 'oidc_auth_profile' in session:
         auth_profile = session['oidc_auth_profile']
-        username = auth_profile.get('preferred_username')
-        email = auth_profile.get('email')
         user_id = auth_profile.get('sub')
 
-        # Extract user profile details
-        given_name = auth_profile.get('given_name')
-        family_name = auth_profile.get('family_name')
+        #get location, public ip, device mac and device vendor
 
-    return render_template('resourceSelection.html',user_id=user_id,username=username,given_name=given_name)
+        location_info = get_location(ip_address=get_public_ip())
+        ip = location_info.get('ip')
+        city = location_info.get('city')
+        country = location_info.get('country')
+        location = f"{city}/{country}"
+
+        # Get the device mac and device vendor
+        device_mac = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
+        device_vendor = get_mac_details(device_mac)
+
+    return render_template('resourceSelection.html',user_id=user_id,location=location,public_ip=ip,device_mac=device_mac,device_vendor=device_vendor)
 
 from datetime import datetime  # Import the datetime module
 
@@ -434,13 +440,18 @@ def approval_status():
             data = request.json
             action = data.get('action')
 
-            if action == 'reconstruct_secret' and approvers_count == THRESHOLD:
+            if action == 'reconstruct_secret':
                 # Retrieving secret shares for all approved approvers
                 approved_approver_shares = Approver.query.filter_by(request_id=latest_request_id, approver_action='approved').all()
                 secret_shares = [approver.approver_secret_share for approver in approved_approver_shares]
-                reconstructed_secret = PAM.reconstruct_secret_from_base64_shares(secret_shares)
+                print(f"Secret Shares: {secret_shares}")
+                reconstructed_secret = "testing reconstructed secret"
 
                 print(reconstructed_secret)
+
+                print(THRESHOLD)
+
+                print(approved_approvers)
                 
                 # Return the reconstructed secret in JSON format
                 return jsonify({'reconstructed_secret': reconstructed_secret})

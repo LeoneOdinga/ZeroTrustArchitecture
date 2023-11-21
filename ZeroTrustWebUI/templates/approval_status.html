@@ -77,78 +77,65 @@
 
         <script>
             function viewProtectedResource() {
-                window.location.href = "/enterSecretKey";
-            }
-            function updateRemainingTime() {
-                var currentTime = new Date();
-                var expirationTime = new Date('{{ expiration_time }}');
-        
-                var timeDiff = expirationTime.getTime() - currentTime.getTime();
-                var totalSeconds = Math.floor(timeDiff / 1000);
-        
-                if (totalSeconds <= 0) {
-                    document.getElementById('remainingTime').textContent = "Time remaining: 0 minutes 0 seconds";
-                    reconstructSecret();
-                } else {
-                    var minutes = Math.floor(totalSeconds / 60);
-                    var seconds = totalSeconds % 60;
-        
-                    var remainingTimeElement = document.getElementById('remainingTime');
-                    remainingTimeElement.textContent = "Time remaining: " + minutes + " minutes " + seconds + " seconds";
-        
-                    sessionStorage.setItem('expirationTime', expirationTime.getTime()); // Store expiration time
-                    setTimeout(updateRemainingTime, 1000);
-                }
-            }
-        
-            function getStoredExpirationTime() {
-                var storedExpirationTime = sessionStorage.getItem('expirationTime');
-                return storedExpirationTime ? parseInt(storedExpirationTime) : null;
-            }
-        
-            function startCountdown() {
-                var storedExpirationTime = getStoredExpirationTime();
-        
-                if (storedExpirationTime) {
-                    var currentTime = new Date().getTime();
-                    var remainingTime = storedExpirationTime - currentTime;
-        
-                    if (remainingTime > 0) {
-                        setTimeout(updateRemainingTime, remainingTime);
-                    } else {
-                        document.getElementById('remainingTime').textContent = "Time remaining: 0 minutes 0 seconds";
-                        reconstructSecret();
+                        window.location.href = "/enterSecretKey";
                     }
-                } else {
+                    // Function to calculate and update remaining time
+                    function updateRemainingTime() {
+                        var currentTime = new Date();
+                        var expirationTime = new Date('{{ expiration_time }}');
+        
+                        var timeDiff = expirationTime.getTime() - currentTime.getTime();
+                        var totalSeconds = Math.floor(timeDiff / 1000); // Calculate total remaining seconds
+        
+                        var minutes = Math.floor(totalSeconds / 60);
+                        var seconds = totalSeconds % 60;
+        
+                        var remainingTimeElement = document.getElementById('remainingTime');
+                        remainingTimeElement.textContent = "Time remaining: " + minutes + " minutes " + seconds + " seconds"; // Display time in minutes and seconds
+                        
+                        if (totalSeconds <= 0) {
+                            // Timer reached 0, stop updating the timer
+                            document.getElementById('remainingTime').textContent = "Time remaining: 0 minutes 0 seconds";
+                            reconstructSecret(); // Call function to reconstruct the secret
+                        } else {
+                            var minutes = Math.floor(totalSeconds / 60);
+                            var seconds = totalSeconds % 60;
+
+                            var remainingTimeElement = document.getElementById('remainingTime');
+                            remainingTimeElement.textContent = "Time remaining: " + minutes + " minutes " + seconds + " seconds";
+
+                            setTimeout(updateRemainingTime, 1000);
+                        }
+                    }
+
+                    function reconstructSecret() {
+                        fetch('/approval_status', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ action: 'reconstruct_secret' }),
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Reconstructed secret:', data.reconstructed_secret);
+                            // Update the UI with the reconstructed secret
+                            document.getElementById('reconstructedSecretKey').value = data.reconstructed_secret;
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            // Handle any errors here
+                        });
+                    }
+
+        
+                    // Call the function to initiate the countdown
                     updateRemainingTime();
-                }
-            }
-            function reconstructSecret() {
-                fetch('/approval_status', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ action: 'reconstruct_secret' }),
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Reconstructed secret:', data.reconstructed_secret);
-                    // Update the UI with the reconstructed secret
-                    document.getElementById('reconstructedSecretKey').value = data.reconstructed_secret;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    // Handle any errors here
-                });
-            }
-        
-            startCountdown();
         </script>
         
     </div>

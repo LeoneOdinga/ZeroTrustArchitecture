@@ -105,21 +105,24 @@
 
             // Get user details from the page
             const userId = "{{ user_id }}"; // Replace with the appropriate way to get user ID in your template
-            const username = "{{ username }}"; // Replace with the appropriate way to get username in your template
-            const givenName = "{{ given_name }}";
+            const public_ip = "{{ public_ip }}"
+            const location = "{{ location }}"
+            const device_mac = "{{ device_mac}}"
+            const device_vendor = "{{ device_vendor }}"
             
             // Send an access request to the Flask backend
             const data = {
                 userId: userId,
-                username: username,
-                givenName: givenName,
                 intent: 'Access Request',
                 resource: resource,
-                message: 'Access request for '+ resource,
                 time: new Date().toLocaleString(),
                 userAgent: userAgent,
                 operatingSystem: operatingSystem,
                 deviceType: deviceType,
+                public_ip: public_ip,
+                location: location,
+                device_mac: device_mac,
+                device_vendor: device_vendor
             };
 
             fetch('/receive-access-request', {
