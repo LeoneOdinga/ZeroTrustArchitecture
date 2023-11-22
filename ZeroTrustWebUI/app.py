@@ -31,7 +31,7 @@ as well as constants
 app.config['OIDC_SESSION_TYPE'] = 'null'
 
 app.config.update({
-    'SECRET_KEY': 'nri0gDKtN8iSvw1iVJqrsqsATKLbJJta',
+    'SECRET_KEY': 'bzf9bctfGor9tB2rOfLdQnK3VNDxt6rx',
     'TESTING': True,
     'DEBUG': True,
     'OIDC_CLIENT_SECRETS': 'client_secrets.json',
@@ -417,6 +417,29 @@ def approve_request():
 
 @app.route('/approval_status', methods=['GET','POST'])
 def approval_status():
+
+    #check if there is a POST request
+    if request.method == 'POST':
+         data = request.json
+         action = data.get('action')
+        #get the latest request
+         latest_request = AccessRequest.query.order_by(AccessRequest.id.desc()).first()
+         if latest_request:
+            latest_request_id = latest_request.id
+            approvers_count = Approver.query.filter_by(request_id=latest_request_id).count()
+            approved_approvers = Approver.query.filter_by(request_id=latest_request_id, approver_action='approved').count()
+            approved_approver_shares = Approver.query.filter_by(request_id=latest_request_id, approver_action='approved').all()
+            #check if the requests approved meets the minimum threshold
+            if approved_approvers == THRESHOLD and action == 'reconstruct_secret':
+                message = 'Threshold for Approval Met! Reconstructing key...'
+                #reconstruct the secret key using the threshold value
+                secret_shares = [approver.approver_secret_share for approver in approved_approver_shares]
+                reconstructed_secret = str(PAM.reconstruct_secret_from_base64_shares(secret_shares))[2:-1]
+                print(reconstructed_secret)
+                return jsonify({'reconstructed_secret': reconstructed_secret})
+            else:
+                return jsonify({'reconstructed_secret': 'Minimum Threshold for Secret Key reconstruction Not reached!'})
+
     latest_request = AccessRequest.query.order_by(AccessRequest.id.desc()).first()
 
     if latest_request:
@@ -435,28 +458,6 @@ def approval_status():
         expiration_time = current_time + timedelta(minutes=APPROVAL_TIME)
 
         reconstructed_secret = None
-
-        if request.method == 'POST':
-            data = request.json
-            action = data.get('action')
-
-            if action == 'reconstruct_secret':
-                # Retrieving secret shares for all approved approvers
-                approved_approver_shares = Approver.query.filter_by(request_id=latest_request_id, approver_action='approved').all()
-                secret_shares = [approver.approver_secret_share for approver in approved_approver_shares]
-                print(f"Secret Shares: {secret_shares}")
-                reconstructed_secret = "testing reconstructed secret"
-
-                print(reconstructed_secret)
-
-                print(THRESHOLD)
-
-                print(approved_approvers)
-                
-                # Return the reconstructed secret in JSON format
-                return jsonify({'reconstructed_secret': reconstructed_secret})
-            else:
-                return "Approvers count has not reached threshold!"
 
         if pending_approvers == 0:
             message = 'All approvers have approved the request'
