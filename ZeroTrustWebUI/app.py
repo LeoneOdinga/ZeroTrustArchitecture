@@ -434,7 +434,6 @@ def approval_status():
          if latest_request:
             latest_request_id = latest_request.id
             approvers_count = Approver.query.filter_by(request_id=latest_request_id).count()
-            pending_approvers = approvers_count - approved_approvers
             approved_approvers = Approver.query.filter_by(request_id=latest_request_id, approver_action='approved').count()
             approved_approver_shares = Approver.query.filter_by(request_id=latest_request_id, approver_action='approved').all()
             #check if the requests approved meets the minimum threshold
@@ -447,10 +446,7 @@ def approval_status():
                 db.session.commit()
                 return jsonify({'reconstructed_secret': reconstructed_secret})
             else:
-                if(pending_approvers ==0):
-                    pass
-                else:
-                    return jsonify({'ERR_THRESH': 'Minimum Threshold for Secret Key reconstruction Not reached!'})
+                 return jsonify({'ERR_THRESH': 'Minimum Threshold for Secret Key reconstruction Not reached!'})
 
     latest_request = AccessRequest.query.order_by(AccessRequest.id.desc()).first()
 
@@ -463,7 +459,7 @@ def approval_status():
 
         approval_info = f'{approved_approvers}/{approvers_count} approvers approved, {pending_approvers} pending'
 
-        APPROVAL_TIME = 1.5
+        APPROVAL_TIME = 2
 
         current_time =datetime.now()
 
@@ -478,7 +474,7 @@ def approval_status():
             secret_shares = [approver.approver_secret_share for approver in approved_approver_shares]
 
             # Reconstructing the secret key from secret shares
-            reconstructed_secret = PAM.reconstruct_secret_from_base64_shares(secret_shares)
+            reconstructed_secret = str(PAM.reconstruct_secret_from_base64_shares(secret_shares))[2:-1]
             latest_request.requestStatus = 'approved'
             db.session.commit() 
         else:
