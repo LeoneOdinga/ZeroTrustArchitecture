@@ -63,7 +63,7 @@
         <div class="remaining-time" id="remainingTime">Time Left: </div>
 
         <div class="message">
-            <p>{{ message }}</p>
+            <p id = "message">{{ message }}</p>
         </div>
 
         <!-- Heading for reconstructed secret key -->
@@ -77,65 +77,78 @@
 
         <script>
             function viewProtectedResource() {
-                        window.location.href = "/enterSecretKey";
+                window.location.href = "/enterSecretKey";
+            }
+
+            function updateRemainingTime() {
+                var currentTime = new Date();
+                var expirationTime = localStorage.getItem("expirationTime");
+
+                if (!expirationTime) {
+                    expirationTime = new Date('{{ expiration_time }}');
+                    localStorage.setItem("expirationTime", expirationTime); // Store expiration time in local storage
+                } else {
+                    expirationTime = new Date(expirationTime);
+                }
+
+                var timeDiff = expirationTime.getTime() - currentTime.getTime();
+                var totalSeconds = Math.floor(timeDiff / 1000);
+                var remainingTimeElement = document.getElementById('remainingTime');
+
+                if (totalSeconds <= 0) {
+                    remainingTimeElement.textContent = "Time remaining: 0 minutes 0 seconds";
+                    reconstructSecret();
+                    localStorage.removeItem("expirationTime");
+                    clearInterval(refreshInterval); // Stop refreshing the page
+                } else {
+                    var minutes = Math.floor(totalSeconds / 60);
+                    var seconds = totalSeconds % 60;
+                    remainingTimeElement.textContent = "Time remaining: " + minutes + " minutes " + seconds + " seconds";
+                }
+            }
+
+            function reconstructSecret() {
+                fetch('/approval_status', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'reconstruct_secret' }),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
                     }
-                    // Function to calculate and update remaining time
-                    function updateRemainingTime() {
-                        var currentTime = new Date();
-                        var expirationTime = new Date('{{ expiration_time }}');
-        
-                        var timeDiff = expirationTime.getTime() - currentTime.getTime();
-                        var totalSeconds = Math.floor(timeDiff / 1000); // Calculate total remaining seconds
-        
-                        var minutes = Math.floor(totalSeconds / 60);
-                        var seconds = totalSeconds % 60;
-        
-                        var remainingTimeElement = document.getElementById('remainingTime');
-                        remainingTimeElement.textContent = "Time remaining: " + minutes + " minutes " + seconds + " seconds"; // Display time in minutes and seconds
-                        
-                        if (totalSeconds <= 0) {
-                            // Timer reached 0, stop updating the timer
-                            document.getElementById('remainingTime').textContent = "Time remaining: 0 minutes 0 seconds";
-                            reconstructSecret(); // Call function to reconstruct the secret
-                        } else {
-                            var minutes = Math.floor(totalSeconds / 60);
-                            var seconds = totalSeconds % 60;
-
-                            var remainingTimeElement = document.getElementById('remainingTime');
-                            remainingTimeElement.textContent = "Time remaining: " + minutes + " minutes " + seconds + " seconds";
-
-                            setTimeout(updateRemainingTime, 1000);
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.hasOwnProperty('ERR_THRESH')) {
+                        document.getElementById('message').innerHTML = 'Approval Threshold not reached!';
+                    }
+                    else{
+                        if(data.hasOwnProperty('reconstructed_secret')){
+                            document.getElementById('reconstructedSecretKey').value = data.reconstructed_secret;
+                            document.getElementById('message').innerHTML = 'Secret Key reconstructed using the Approval threshold!';
                         }
                     }
-
-                    function reconstructSecret() {
-                        fetch('/approval_status', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ action: 'reconstruct_secret' }),
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error('Network response was not ok');
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log('Reconstructed secret:', data.reconstructed_secret);
-                            // Update the UI with the reconstructed secret
-                            document.getElementById('reconstructedSecretKey').value = data.reconstructed_secret;
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            // Handle any errors here
-                        });
-                    }
-
-        
-                    // Call the function to initiate the countdown
-                    updateRemainingTime();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Handle any errors here
+                });
+            }
+            
+            var counter =0; 
+            // Call the function to initiate the countdown
+            var refreshInterval = setInterval(function() {
+                updateRemainingTime();
+                counter ++;
+                if (counter ==5)
+                {
+                    counter =0;
+                    location.reload();
+                }
+            }, 1000); // Refresh every second
         </script>
         
     </div>

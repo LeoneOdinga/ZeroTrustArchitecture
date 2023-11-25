@@ -15,6 +15,7 @@ import re, uuid
 from keycloak_config import *
 from PAM import PAM
 from Keycloak_functions import *
+from PAM_Mail_Notification import send_email,send_email_to_approver
 
 sys.path.insert(0,'..')
 
@@ -334,6 +335,11 @@ def privilegedAccess():
         # Extract selected approvers in a list
         selected_approvers = request.form.getlist('approvers')
 
+        # loop through the approvers and Send emails containing the approval details
+        for index, approver in enumerate(selected_approvers):
+            approver_secret_share = secret_shares_list[index] #obtain the share to send for this approver
+            send_email_to_approver(approver,requestor_id,requestor_username,reason_for_access,access_duration,approver_secret_share)
+
         # Validate the access duration (between 1 and 100 minutes)
         if 1 <= access_duration <= 100:
             # Create a new access request and add it to the database
@@ -351,14 +357,14 @@ def privilegedAccess():
             db.session.add(new_request)
             db.session.commit()
 
-             # Insert approver details
+             # Insert approver details to the DB (secret share not to be inserted !!!)
             for index, approver_email in enumerate(selected_approvers):
-                approver_secret_share = secret_shares_list[index]  # Get the corresponding secret share
+                #approver_secret_share = secret_shares_list[index]  # Get the corresponding secret share
                 approver = Approver(
                     approverID=get_user_id_by_email(keycloak_admin,approver_email),
                     approverEmail=approver_email,
                     request_id=new_request.id,
-                    approver_secret_share=approver_secret_share  # Assign the secret share to each approverID
+                    #approver_secret_share=approver_secret_share  # Assign the secret share to each approverID
                 )
                 db.session.add(approver)
                 db.session.commit()
@@ -388,11 +394,11 @@ def testApproval():
     # Retrieve the secret share for the logged-in approver from the database
     approver = Approver.query.filter_by(approverID=user_id).order_by(Approver.id.desc()).first()
 
-    secret_share = approver.approver_secret_share if approver else None
+    #secret_share = approver.approver_secret_share if approver else None
 
     access_requests = AccessRequest.query.order_by(AccessRequest.id.desc()).limit(1).all()  # Adjust 'limit' as needed
 
-    return render_template('apprPage.html', access_requests=access_requests, username=username, email=email, user_id=user_id, user_role=user_role, secret_share=secret_share)
+    return render_template('apprPage.html', access_requests=access_requests, username=username, email=email, user_id=user_id, user_role=user_role)
 
 @app.route('/approve_request', methods=['POST'])
 def approve_request():
@@ -408,6 +414,7 @@ def approve_request():
         approver = Approver.query.filter_by(approverID=approver_id).order_by(Approver.id.desc()).first()
         if approver:
             approver.approver_action = 'approved' if action == 'approve' else 'rejected'
+            approver.approver_secret_share  = secret_share
             db.session.commit()
 
             print("request approved... waiting for processing")
@@ -427,6 +434,7 @@ def approval_status():
          if latest_request:
             latest_request_id = latest_request.id
             approvers_count = Approver.query.filter_by(request_id=latest_request_id).count()
+            pending_approvers = approvers_count - approved_approvers
             approved_approvers = Approver.query.filter_by(request_id=latest_request_id, approver_action='approved').count()
             approved_approver_shares = Approver.query.filter_by(request_id=latest_request_id, approver_action='approved').all()
             #check if the requests approved meets the minimum threshold
@@ -435,10 +443,14 @@ def approval_status():
                 #reconstruct the secret key using the threshold value
                 secret_shares = [approver.approver_secret_share for approver in approved_approver_shares]
                 reconstructed_secret = str(PAM.reconstruct_secret_from_base64_shares(secret_shares))[2:-1]
-                print(reconstructed_secret)
+                latest_request.requestStatus = 'approved'
+                db.session.commit()
                 return jsonify({'reconstructed_secret': reconstructed_secret})
             else:
-                return jsonify({'reconstructed_secret': 'Minimum Threshold for Secret Key reconstruction Not reached!'})
+                if(pending_approvers ==0):
+                    pass
+                else:
+                    return jsonify({'ERR_THRESH': 'Minimum Threshold for Secret Key reconstruction Not reached!'})
 
     latest_request = AccessRequest.query.order_by(AccessRequest.id.desc()).first()
 
@@ -451,7 +463,7 @@ def approval_status():
 
         approval_info = f'{approved_approvers}/{approvers_count} approvers approved, {pending_approvers} pending'
 
-        APPROVAL_TIME = 1
+        APPROVAL_TIME = 1.5
 
         current_time =datetime.now()
 
@@ -467,6 +479,8 @@ def approval_status():
 
             # Reconstructing the secret key from secret shares
             reconstructed_secret = PAM.reconstruct_secret_from_base64_shares(secret_shares)
+            latest_request.requestStatus = 'approved'
+            db.session.commit() 
         else:
             message = ''
 
