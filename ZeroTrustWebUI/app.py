@@ -189,38 +189,7 @@ def home():
 
             print(f"\nUSER INFO: {userinfo}")
 
-            ip_addr = request.environ['REMOTE_ADDR']
-
-            # joins elements of getnode() after each 2 digits.
-            # using regex expression
-            print ("The MAC address in formatted and less complex way is : ", end="")
-            print (':'.join(re.findall('..', '%012x' % uuid.getnode())))
-
-            mac_address = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
-
-            """ # Get vendor details for the extracted MAC address
-            try:
-                vendor_details = get_mac_details(mac_address)
-                print("Vendor Details for MAC Address", mac_address, ":", vendor_details)
-            except Exception as e:
-                print(e)
-
-            print(mac_address) """
-
-            print(f"Your IP Address is: {ip_addr}")
-
             print(f"KEYCLOAK EVENTS: {keycloak_admin.get_events()}")
-
-            """ # Get the public IP address
-            public_ip = get_public_ip()
-            if public_ip:
-                print(f"The public IP address of the device is: {public_ip}")
-            else:
-                print("Unable to retrieve the public IP address.")
-
-            
-            print(f"LOCATION INFO: {get_location(public_ip)}") """
-
 
             # Decode Token
             KEYCLOAK_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----\n" + keycloak_openid.public_key() + "\n-----END PUBLIC KEY-----"
@@ -483,6 +452,11 @@ def approval_status():
         return render_template('approval_status.html', approval_info=approval_info, message=message, reconstructed_secret=reconstructed_secret,threshold=THRESHOLD,expiration_time=expiration_time)
 
     return render_template('no_requests.html')  # Render a template if no requests exist
+
+
+@app.route('/success', methods = ['GET'])
+def approval_success():
+    return render_template('success.html')
 
 @app.route('/enterSecretKey', methods=['GET', 'POST'])
 def process_secret_key():

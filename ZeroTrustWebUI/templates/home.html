@@ -115,6 +115,10 @@
                 <h3>04. Privileged Access Management</h3>
                 <p>Least Privileged just-in-time access for highly sensitive resources.</p>
             </div>
+            <div class="option" id="option5" role="button" tabindex="0" aria-label="Approve PAM Requests" onclick="redirectToApprovePAM()">
+                <h3>05. Approve PAM requests</h3>
+                <p>Facilitate Just-in-Time Access By Approving PAM requests.</p>
+            </div>
         </div>
         <div class="footer">
             &copy; 2023 LeoTech LTD
@@ -142,6 +146,81 @@
         function redirectToPAM(){
             window.location.href = '/privilegedAccess'
         }
+
+        function redirectToApprovePAM(){
+            window.location.href = '/testing'
+        }
+
+        //function to disable options based on user role
+        function disableOptionsForRole(userRole) {
+            const policyAdminOptions = ['option2']; // IDs of options available to Policy Administrators
+            const securityViewerOptions = ['option3']; // IDs of options available to Security Viewers
+            const pam_option = ['option4']; //IDs of options available for Privileged admins
+            const resource_access = ['option1'];
+            const approver_pam_requests = ['option5']
+            
+            if (userRole === 'Policy Administrator') {
+                // Disable options not available to Policy Administrators
+                securityViewerOptions.forEach(optionId => {
+                    const option = document.getElementById(optionId);
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.5'; // Grey out the option
+                });
+                resource_access.forEach(optionId => {
+                    const option = document.getElementById(optionId);
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.5'; // Grey out the option
+                });
+                approver_pam_requests.forEach(optionId => {
+                    const option = document.getElementById(optionId);
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.5'; // Grey out the option
+                });
+            } else if (userRole === 'Approver') {
+                // Disable options not available to Security Viewers
+                policyAdminOptions.forEach(optionId => {
+                    const option = document.getElementById(optionId);
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.5'; // Grey out the option
+                });
+                resource_access.forEach(optionId => {
+                    const option = document.getElementById(optionId);
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.5'; // Grey out the option
+                });
+                securityViewerOptions.forEach(optionId => {
+                    const option = document.getElementById(optionId);
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.5'; // Grey out the option
+                });
+            }
+            else if (userRole === 'Security Viewer'){
+                // Disable options not available to Security Viewers
+                policyAdminOptions.forEach(optionId => {
+                    const option = document.getElementById(optionId);
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.5'; // Grey out the option
+                });
+                resource_access.forEach(optionId => {
+                    const option = document.getElementById(optionId);
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.5'; // Grey out the option
+                });
+
+                approver_pam_requests.forEach(optionId => {
+                    const option = document.getElementById(optionId);
+                    option.style.pointerEvents = 'none';
+                    option.style.opacity = '0.5'; // Grey out the option
+                });
+            }
+        }
+
+        // Call the function when the page loads, passing in the user's role
+        document.addEventListener('DOMContentLoaded', function () {
+            const userRole = "{{ user_role }}"; // Fetch the user's role from the template variable
+            disableOptionsForRole(userRole);
+        });
+        
     </script>
 </body>
 </html>
