@@ -183,7 +183,7 @@
                     option.style.pointerEvents = 'none';
                     option.style.opacity = '0.5'; // Grey out the option
                 });
-                resource_access.forEach(optionId => {
+                pam_option.forEach(optionId => {
                     const option = document.getElementById(optionId);
                     option.style.pointerEvents = 'none';
                     option.style.opacity = '0.5'; // Grey out the option
@@ -220,7 +220,7 @@
             const userRole = "{{ user_role }}"; // Fetch the user's role from the template variable
             disableOptionsForRole(userRole);
         });
-        
+
     </script>
 </body>
 </html>

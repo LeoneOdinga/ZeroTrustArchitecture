@@ -72,4 +72,48 @@ def get_client_role_members_emails(keycloak_admin,client_id, role_name):
 
     return email_list
 
+def get_mac_details(mac_address):
+     
+    # We will use an API to get the vendor details
+    url = "https://api.macvendors.com/"
+     
+    # Use get method to fetch details
+    response = requests.get(url+mac_address)
+    if response.status_code != 200:
+        raise Exception("[!] Invalid MAC Address!")
+    return response.content.decode()
+
+def get_public_ip():
+    try:
+        # Make an HTTP GET request to retrieve the public IP address
+        response = requests.get('https://api.ipify.org')
+        
+        # Check if the request was successful (status code 200)
+        if response.status_code == 200:
+            # Extract and return the public IP address from the response
+            return response.text
+        else:
+            print(f"Failed to retrieve public IP. Status code: {response.status_code}")
+    except requests.RequestException as e:
+        print(f"Request Exception: {e}")
+    
+    return None  # Return None if unable to retrieve the public IP
+
+def get_location(ip_address):
+    response = requests.get(f'https://ipapi.co/{ip_address}/json/').json()
+    location_data = {
+        "ip": ip_address,
+        "city": response.get("city"),
+        "region": response.get("region"),
+        "country": response.get("country_name")
+    }
+    return location_data
+
+#Function to get all the user credentials stored in keycloak and store them in a json file
+
+def get_all_users():
+    print("This will return all the users, their credentials and store them in a json file")
+    
+
+
 

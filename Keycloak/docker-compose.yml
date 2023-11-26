@@ -1,32 +1,48 @@
-version: '3'
-
-volumes:
-  postgres_data:
-      driver: local
-
+name: docker-stack
 services:
-  postgres:
-      image: postgres
-      volumes:
-        - postgres_data:/var/lib/postgresql/data
-      environment:
-        POSTGRES_DB: keycloak
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
   keycloak:
-      image: quay.io/keycloak/keycloak:latest
-      environment:
-        DB_VENDOR: POSTGRES
-        DB_ADDR: postgres
-        DB_DATABASE: keycloak
-        DB_USER: postgres
-        DB_SCHEMA: public
-        DB_PASSWORD: postgres
-        KEYCLOAK_USER: admin
-        KEYCLOAK_PASSWORD: admin
-        # Uncomment the line below if you want to specify JDBC parameters. The parameter below is just an example, and it shouldn't be used in production without knowledge. It is highly recommended that you read the PostgreSQL JDBC driver documentation in order to use it.
-        #JDBC_PARAMS: "ssl=true"
-      ports:
-        - 8080:8080
-      depends_on:
-        - postgres
+    command:
+    - start
+    - --auto-build
+    container_name: keycloak
+    depends_on:
+      postgres:
+        condition: service_started
+    environment:
+      KC_DB: postgres
+      KC_DB_PASSWORD: <redacted>
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_URL_HOST: postgres
+      KC_DB_USERNAME: <redacted>
+      KC_HOSTNAME: <redacted>
+      KC_PROXY: edge
+    hostname: keycloak
+    image: quay.io/keycloak/keycloak:latest
+    networks:
+      default: null
+      postgresql: null
+    restart: always
+    volumes:
+    - type: bind
+      source: /home/docker/docker-stack/keycloak/volumes/opt/keycloak/providers
+      target: /opt/keycloak/providers
+      bind:
+        create_host_path: true
+  postgres:
+    hostname: postgres # I build my own postgres image, but the standard one should work, too.
+    image: local/postgres
+    networks:
+      postgresql: null
+    restart: always
+    volumes:
+    - type: bind
+      source: /home/docker/docker-stack/postgres/volumes/14/data
+      target: /var/lib/postgresql/data
+      bind:
+        create_host_path: true
+networks:
+  default:
+    name: docker-stack_default
+  postgresql:
+    name: docker-stack_postgresql
+    internal: true

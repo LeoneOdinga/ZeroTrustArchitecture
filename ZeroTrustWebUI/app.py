@@ -25,8 +25,6 @@ app = Flask(__name__)
 
 '''
 This section below contains the configuration of the flask OIDC and the keycloak OIDC
-as well as constants
-
 '''
 
 app.config['OIDC_SESSION_TYPE'] = 'null'
@@ -110,7 +108,6 @@ def index():
     else:
         return render_template('index.html')
     
-
 #create a route to revoke an access token and redirect to index.html page for the user to authenticate
 @app.route('/revokeToken')
 @oidc.require_login
@@ -134,69 +131,13 @@ def login():
     else:
         return render_template('index.html')
 
-def get_mac_details(mac_address):
-     
-    # We will use an API to get the vendor details
-    url = "https://api.macvendors.com/"
-     
-    # Use get method to fetch details
-    response = requests.get(url+mac_address)
-    if response.status_code != 200:
-        raise Exception("[!] Invalid MAC Address!")
-    return response.content.decode()
-
-def get_public_ip():
-    try:
-        # Make an HTTP GET request to retrieve the public IP address
-        response = requests.get('https://api.ipify.org')
-        
-        # Check if the request was successful (status code 200)
-        if response.status_code == 200:
-            # Extract and return the public IP address from the response
-            return response.text
-        else:
-            print(f"Failed to retrieve public IP. Status code: {response.status_code}")
-    except requests.RequestException as e:
-        print(f"Request Exception: {e}")
-    
-    return None  # Return None if unable to retrieve the public IP
-
-def get_location(ip_address):
-    response = requests.get(f'https://ipapi.co/{ip_address}/json/').json()
-    location_data = {
-        "ip": ip_address,
-        "city": response.get("city"),
-        "region": response.get("region"),
-        "country": response.get("country_name")
-    }
-    return location_data
-
-
 # The home route where all the available services are located
- 
 @app.route('/home')
 def home():
     try:
         if oidc.user_loggedin:
+
             access_token = oidc.get_access_token()
-
-            # Introspect the access token to ensure it's valid
-            introspection_result = keycloak_openid.introspect(access_token)
-
-            print(f"\nTOKEN INTROSPECTION RESULTS: {introspection_result}")
-
-            userinfo = keycloak_openid.userinfo(access_token)
-
-            print(f"\nUSER INFO: {userinfo}")
-
-            print(f"KEYCLOAK EVENTS: {keycloak_admin.get_events()}")
-
-            # Decode Token
-            KEYCLOAK_PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----\n" + keycloak_openid.public_key() + "\n-----END PUBLIC KEY-----"
-            options = {"verify_signature": True, "verify_aud": False, "verify_exp": True}
-            token_info = keycloak_openid.decode_token(access_token, key=KEYCLOAK_PUBLIC_KEY, options=options)
-
-            print(f"\nDECODED TOKEN{token_info}")
 
             if token_is_valid(oidc,keycloak_openid):
                 if 'oidc_auth_profile' in session:
@@ -208,7 +149,41 @@ def home():
                     user_roles = extract_user_role(oidc,keycloak_openid)
                     user_role = user_roles[0]
 
-                    print(keycloak_admin.get_bruteforce_detection_status(user_id))
+                    query_params = {
+
+                                "dateFrom": "2023-01-01", 
+                                "dateTo": "2023-12-31",  
+                                "max": 10000, 
+                        }
+                
+                    events_data = keycloak_admin.get_events(query=query_params)
+                    cleaned_data = []
+
+                    for event in events_data:
+                        cleaned_event = {
+                            'time': event.get('time', None),
+                            'type': event.get('type', None),
+                            'user_id': event.get('userId', None),
+                            'ip_address': event.get('ipAddress', None)
+                        }
+
+                        if 'details' in event:
+                            details = event['details']
+                            cleaned_event['auth_type'] = details.get('auth_type', None)
+                            cleaned_event['token_id'] = details.get('token_id', None)
+
+                        cleaned_event['session_id'] = event.get('sessionId', None)
+
+                        cleaned_data.append(cleaned_event)
+
+                    # Displaying the cleaned data
+                    for event in cleaned_data:
+                        print(event)
+                    
+                    all_users = keycloak_admin.get_users()
+
+                    print(f"All Users: {all_users}")
+
                     return render_template('home.html', username=username, email=email, user_id=user_id, user_role=user_role)
                 else:
                     return "<h1>NOT AUTHORIZED!</h1>"
@@ -264,12 +239,10 @@ def resource_selection():
 
     return render_template('resourceSelection.html',user_id=user_id,location=location,public_ip=ip,device_mac=device_mac,device_vendor=device_vendor)
 
-from datetime import datetime  # Import the datetime module
-
 @app.route('/privilegedAccess', methods=['GET', 'POST'])
 def privilegedAccess():
     #dynamically query the keycloak API for the list of approvers to display for the requestor
-    client_id = keycloak_admin.get_client_id("ZeroTrustPlatform")
+    client_id = keycloak_admin.get_client_id(KEYCLOAK_CLIENT_ID)
     role_name = "Approver"
     email_addresses = get_client_role_members_emails(keycloak_admin,client_id, role_name)
 
@@ -531,6 +504,3 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     app.run(debug=True)
-
-
-
