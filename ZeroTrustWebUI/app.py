@@ -1,3 +1,5 @@
+import json
+import os
 import sys
 from flask import Flask,render_template, request, jsonify, session, url_for,redirect, make_response
 import logging
@@ -149,6 +151,8 @@ def home():
                     user_roles = extract_user_role(oidc,keycloak_openid)
                     user_role = user_roles[0]
 
+                    #get the keycloak events such as login, logout, login error and store them in a json file
+
                     query_params = {
 
                                 "dateFrom": "2023-01-01", 
@@ -176,13 +180,63 @@ def home():
 
                         cleaned_data.append(cleaned_event)
 
-                    # Displaying the cleaned data
-                    for event in cleaned_data:
-                        print(event)
-                    
+                    # File handling to store events in a JSON file
+                    file_path = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'events.json')
+
+                    try:
+                        # Load existing data if file exists
+                        existing_data = []
+                        new_id = 1
+
+                        if os.path.exists(file_path):
+                            with open(file_path, 'r') as file:
+                                existing_data = json.load(file)
+                                if existing_data:
+                                    last_entry = existing_data[-1]
+                                    new_id = last_entry['ID'] + 1
+
+                        # Add incremental ID and append the events to the existing data
+                        for i, event in enumerate(cleaned_data, start=new_id):
+                            event_exists = False
+                            for existing_event in existing_data:
+                                if event['time'] == existing_event['time'] and event['user_id'] == existing_event['user_id']:
+                                    event_exists = True
+                                    break
+
+                            if not event_exists:
+                                event['ID'] = i
+                                existing_data.append(event)
+
+                        # Write the updated data to the JSON file
+                        with open(file_path, 'w') as file:
+                            json.dump(existing_data, file, indent=4)
+
+                    except (json.JSONDecodeError, FileNotFoundError) as e:
+                        print(f"Error occurred while handling the JSON file: {e}")
+
+                    except IOError as e:
+                        print(f"Error occurred while writing JSON data: {e}")
+                                    
                     all_users = keycloak_admin.get_users()
 
                     print(f"All Users: {all_users}")
+
+                    # Extracting user data
+                    extracted_data = []
+                    for user in all_users:
+                        user_info = {
+                            'user_id': user['id'],
+                            'username': user['username'],
+                            'email': user['email']
+                        }
+                        extracted_data.append(user_info)
+                    
+                    parent_directory = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+                    file_path = os.path.join(parent_directory, 'user_data.json')
+
+                    # Storing in a JSON file in the parent directory
+                    with open(file_path, 'w') as json_file:
+                        json.dump(extracted_data, json_file, indent=4)
 
                     return render_template('home.html', username=username, email=email, user_id=user_id, user_role=user_role)
                 else:
@@ -198,10 +252,47 @@ def home():
 #route to receive an access request and forward it to the AP
 @app.route('/receive-access-request', methods = ['POST'])
 def receive_and_process_access_request():
-    #receive the data from the front end when the option1 is clicked. 
+    #receive the data from the front end when the resource option is clicked. 
     data = request.json
-    print("Received data:", data)
+    #Implement logic for adding the access request in the json file
+    file_path = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'access_requests.json')
+    existing_data = []
+    new_id = 1
 
+    try:
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as file:
+                existing_data = json.load(file)
+                if existing_data:
+                    last_entry = existing_data[-1]
+                    new_id = last_entry['ID'] + 1
+
+    except(json.JSONDecodeError, FileNotFoundError) as e:
+        print(f"Error occurred while loading JSON data: {e}")
+
+    access_request = {
+        'ID': new_id,
+        'user_id': data.pop('userId'),
+        'resource_requested': data['resource'],
+        'access_request_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'public_ip_address': data['public_ip'],
+        'location': data['location'],
+        'device_type': data['deviceType'],
+        'browser': data['userAgent'],
+        'device_mac': data['device_mac'],
+        'device_vendor': data['device_vendor'],
+        'device_OS': data['operatingSystem']
+    }
+
+    existing_data.append(access_request)
+
+    try:
+        with open(file_path, 'w') as file:
+            json.dump(existing_data, file, indent=4)
+
+    except IOError as e:
+        print(f"Error  occured while loading the json data {e}")
+    
     #try to send the data to the AP in the peer to peer network of nodes ... Testing
 
     #first create an instance of the Networking class
@@ -236,6 +327,7 @@ def resource_selection():
         # Get the device mac and device vendor
         device_mac = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
         device_vendor = get_mac_details(device_mac)
+
 
     return render_template('resourceSelection.html',user_id=user_id,location=location,public_ip=ip,device_mac=device_mac,device_vendor=device_vendor)
 

@@ -100,12 +100,12 @@ def get_public_ip():
     return None  # Return None if unable to retrieve the public IP
 
 def get_location(ip_address):
-    response = requests.get(f'https://ipapi.co/{ip_address}/json/').json()
+    response = requests.get(f'https://ipinfo.io/{ip_address}/json/').json()
     location_data = {
         "ip": ip_address,
         "city": response.get("city"),
         "region": response.get("region"),
-        "country": response.get("country_name")
+        "country": response.get("country")
     }
     return location_data
 
