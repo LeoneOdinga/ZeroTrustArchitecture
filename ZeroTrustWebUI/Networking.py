@@ -71,9 +71,9 @@ class Networking(Node):
         # Your code to process messages from the Policy Engine Node goes here
 
     def process_message_from_web_ui(self, sender, message):
-        print(f"\nReceived an access request from Web UI [{sender}]: {message}")
-
-        #code to process messages from the Policy Engine Node goes here
+        print(f"Received an Access Request from Web UI [{sender}]: {message}")
+        self.send_message_to_node('2',message)
+        # Your code to process messages from the Policy Engine Node goes here
 
     def print_all_nodes(self):
         print("Outbound Nodes:")

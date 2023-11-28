@@ -109,11 +109,5 @@ def get_location(ip_address):
     }
     return location_data
 
-#Function to get all the user credentials stored in keycloak and store them in a json file
-
-def get_all_users():
-    print("This will return all the users, their credentials and store them in a json file")
-    
-
 
 

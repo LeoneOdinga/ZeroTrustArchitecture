@@ -1,4 +1,4 @@
-email_sender = 'odingaleone7@gmail.com'
-email_password = 'nrdm umzl izhz qclz'
+email_sender = ''
+email_password = ''
 subject = "Privileged Access Management (PAM) Request Approval"
 

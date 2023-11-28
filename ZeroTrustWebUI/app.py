@@ -18,6 +18,7 @@ from keycloak_config import *
 from PAM import PAM
 from Keycloak_functions import *
 from PAM_Mail_Notification import send_email,send_email_to_approver
+from trust_signal_collection import store_keycloak_events,load_events_data,process_events
 
 sys.path.insert(0,'..')
 
@@ -132,14 +133,13 @@ def login():
         return response
     else:
         return render_template('index.html')
+    
 
 # The home route where all the available services are located
 @app.route('/home')
 def home():
     try:
         if oidc.user_loggedin:
-
-            access_token = oidc.get_access_token()
 
             if token_is_valid(oidc,keycloak_openid):
                 if 'oidc_auth_profile' in session:
@@ -151,75 +151,26 @@ def home():
                     user_roles = extract_user_role(oidc,keycloak_openid)
                     user_role = user_roles[0]
 
-                    #get the keycloak events such as login, logout, login error and store them in a json file
+                    #storing keycloak events
+                    store_keycloak_events(keycloak_admin)
 
-                    query_params = {
+                    parent_directory = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
 
-                                "dateFrom": "2023-01-01", 
-                                "dateTo": "2023-12-31",  
-                                "max": 10000, 
-                        }
-                
-                    events_data = keycloak_admin.get_events(query=query_params)
-                    cleaned_data = []
+                    # Define the path to events.json in the parent directory
+                    events_file_path = os.path.join(parent_directory, 'events.json')
 
-                    for event in events_data:
-                        cleaned_event = {
-                            'time': event.get('time', None),
-                            'type': event.get('type', None),
-                            'user_id': event.get('userId', None),
-                            'ip_address': event.get('ipAddress', None)
-                        }
+                    events_data = load_events_data(events_file_path)
+                    # Process event data to yield the auth_data
+                    if events_data:
+                        process_events(events_data)
+                    else:
+                        print("Failed to load events data.")
 
-                        if 'details' in event:
-                            details = event['details']
-                            cleaned_event['auth_type'] = details.get('auth_type', None)
-                            cleaned_event['token_id'] = details.get('token_id', None)
-
-                        cleaned_event['session_id'] = event.get('sessionId', None)
-
-                        cleaned_data.append(cleaned_event)
-
-                    # File handling to store events in a JSON file
-                    file_path = os.path.join(os.path.abspath(os.path.join(os.getcwd(), os.pardir)), 'events.json')
-
-                    try:
-                        # Load existing data if file exists
-                        existing_data = []
-                        new_id = 1
-
-                        if os.path.exists(file_path):
-                            with open(file_path, 'r') as file:
-                                existing_data = json.load(file)
-                                if existing_data:
-                                    last_entry = existing_data[-1]
-                                    new_id = last_entry['ID'] + 1
-
-                        # Add incremental ID and append the events to the existing data
-                        for i, event in enumerate(cleaned_data, start=new_id):
-                            event_exists = False
-                            for existing_event in existing_data:
-                                if event['time'] == existing_event['time'] and event['user_id'] == existing_event['user_id']:
-                                    event_exists = True
-                                    break
-
-                            if not event_exists:
-                                event['ID'] = i
-                                existing_data.append(event)
-
-                        # Write the updated data to the JSON file
-                        with open(file_path, 'w') as file:
-                            json.dump(existing_data, file, indent=4)
-
-                    except (json.JSONDecodeError, FileNotFoundError) as e:
-                        print(f"Error occurred while handling the JSON file: {e}")
-
-                    except IOError as e:
-                        print(f"Error occurred while writing JSON data: {e}")
-                                    
                     all_users = keycloak_admin.get_users()
 
-                    print(f"All Users: {all_users}")
+                    # Define the path to the JSON file
+                    parent_directory = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+                    file_path = os.path.join(parent_directory, 'user_data.json')
 
                     # Extracting user data
                     extracted_data = []
@@ -227,16 +178,36 @@ def home():
                         user_info = {
                             'user_id': user['id'],
                             'username': user['username'],
-                            'email': user['email']
+                            'email': user['email'],
+                            'created_timestamp': user['createdTimestamp'],
+                            'email_verified': user['emailVerified'],
+                            'totp_enabled': user['totp'],
+                            'user_role': user_role if user['id'] == user_id else user.get('user_role') # Assign user role if IDs match
                         }
                         extracted_data.append(user_info)
-                    
-                    parent_directory = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
-                    file_path = os.path.join(parent_directory, 'user_data.json')
 
-                    # Storing in a JSON file in the parent directory
+                    # Load existing data from the file if it exists
+                    existing_data = []
+                    if os.path.exists(file_path):
+                        with open(file_path, 'r') as json_file:
+                            existing_data = json.load(json_file)
+
+                    # Update existing records without overwriting existing roles
+                    for existing_user in existing_data:
+                        for new_user in extracted_data:
+                            if existing_user['user_id'] == new_user['user_id'] and new_user['user_role'] is not None:
+                                existing_user['user_role'] = new_user['user_role']
+                                break
+
+                    # Combine existing and new data without duplicates
+                    user_ids_in_file = {user['user_id'] for user in existing_data}
+                    for new_user in extracted_data:
+                        if new_user['user_id'] not in user_ids_in_file:
+                            existing_data.append(new_user)
+
+                    # Store the updated and new data in the JSON file
                     with open(file_path, 'w') as json_file:
-                        json.dump(extracted_data, json_file, indent=4)
+                        json.dump(existing_data, json_file, indent=4)
 
                     return render_template('home.html', username=username, email=email, user_id=user_id, user_role=user_role)
                 else:
