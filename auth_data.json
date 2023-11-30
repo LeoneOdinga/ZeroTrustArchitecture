@@ -1,0 +1,442 @@
+[
+    {
+        "time": 1701102658778,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 1
+    },
+    {
+        "time": 1701094283654,
+        "type": "LOGIN",
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.25,
+        "ID": 2
+    },
+    {
+        "time": 1701094281143,
+        "type": "LOGIN_ERROR",
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.25,
+        "ID": 3
+    },
+    {
+        "time": 1701094161158,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 4
+    },
+    {
+        "time": 1701092720333,
+        "type": "LOGIN",
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.9055555555555557,
+        "ID": 5
+    },
+    {
+        "time": 1701089414718,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 6
+    },
+    {
+        "time": 1701087186346,
+        "type": "LOGIN",
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.9055555555555557,
+        "ID": 7
+    },
+    {
+        "time": 1701086733792,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 8
+    },
+    {
+        "time": 1701070956286,
+        "type": "LOGIN",
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.9055555555555557,
+        "ID": 9
+    },
+    {
+        "time": 1701070534669,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 10
+    },
+    {
+        "time": 1701069210319,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 11
+    },
+    {
+        "time": 1701060850765,
+        "type": "LOGIN",
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.9055555555555557,
+        "ID": 12
+    },
+    {
+        "time": 1701032131980,
+        "type": "LOGIN",
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.9055555555555557,
+        "ID": 13
+    },
+    {
+        "time": 1701027773501,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 14
+    },
+    {
+        "time": 1701022745192,
+        "type": "LOGIN",
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.9055555555555557,
+        "ID": 15
+    },
+    {
+        "time": 1701022102038,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 16
+    },
+    {
+        "time": 1701012794242,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 17
+    },
+    {
+        "time": 1701012707738,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 18
+    },
+    {
+        "time": 1701012705248,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 19
+    },
+    {
+        "time": 1701012702834,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 20
+    },
+    {
+        "time": 1701012701033,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 21
+    },
+    {
+        "time": 1701012652703,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 22
+    },
+    {
+        "time": 1701012650608,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 23
+    },
+    {
+        "time": 1701012648196,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 24
+    },
+    {
+        "time": 1701012645965,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 25
+    },
+    {
+        "time": 1701012643224,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 26
+    },
+    {
+        "time": 1701012641017,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 27
+    },
+    {
+        "time": 1701012638658,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 28
+    },
+    {
+        "time": 1701011624129,
+        "type": "LOGIN",
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.9055555555555557,
+        "ID": 29
+    },
+    {
+        "time": 1701009866198,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 30
+    },
+    {
+        "time": 1701008525070,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 31
+    },
+    {
+        "time": 1701008519243,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 32
+    },
+    {
+        "time": 1701008516048,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 33
+    },
+    {
+        "time": 1701008513226,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 34
+    },
+    {
+        "time": 1701008510334,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 35
+    },
+    {
+        "time": 1701008507462,
+        "type": "LOGIN_ERROR",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 36
+    },
+    {
+        "time": 1701008196004,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 37
+    },
+    {
+        "time": 1701007241805,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 38
+    },
+    {
+        "time": 1700999683152,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 39
+    },
+    {
+        "time": 1700949982166,
+        "type": "LOGIN",
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.5241935483870968,
+        "ID": 40
+    },
+    {
+        "time": 1700948706586,
+        "type": "LOGIN",
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.9055555555555557,
+        "ID": 41
+    },
+    {
+        "time": 1700948605512,
+        "type": "LOGIN_ERROR",
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 0,
+        "sign_in_risk": 0.9055555555555557,
+        "ID": 42
+    },
+    {
+        "time": 1700948512659,
+        "type": "LOGIN",
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 0.9055555555555557,
+        "ID": 43
+    },
+    {
+        "time": 1701283587512,
+        "type": "LOGIN",
+        "user_id": "a1b11de5-019c-409f-9b31-540b00e8d83e",
+        "ip_address": "172.17.0.1",
+        "auth_type": "code",
+        "auth_status": 1,
+        "sign_in_risk": 1.5,
+        "ID": 44
+    }
+]

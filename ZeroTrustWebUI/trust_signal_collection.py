@@ -246,6 +246,3 @@ def get_user_identity_data_by_id(user_id, user_data_file):
             return user
 
     return None  # Return None if user_id not found
-
-
-

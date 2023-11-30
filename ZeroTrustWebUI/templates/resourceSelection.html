@@ -104,7 +104,7 @@
                 : 'Desktop';
 
             // Get user details from the page
-            const userId = "{{ user_id }}"; // Replace with the appropriate way to get user ID in your template
+            const userId = "{{ user_id }}"; 
             const public_ip = "{{ public_ip }}"
             const location = "{{ location }}"
             const device_mac = "{{ device_mac}}"
@@ -136,7 +136,22 @@
             .then(response => response.json())
             .then(data => {
                 // Indicate to the user that the request has been sent and is awaiting verification
-                selectedOption.innerHTML = `<h3>${resource}</h3><p>Access request sent. Awaiting verification...</p>`;
+                // Extract the verdict from the response data
+                    const verdict = data.verdict;
+
+                // Check the verdict value
+                if (verdict === 0) {
+                    // If access is denied, show an alert to the user
+                    alert("Access Denied!");
+                    // Redirect to the login route after the alert is dismissed
+                    window.location.href = '/login'; // Replace '/login' with your actual login route
+                } else if (verdict === 1) {
+                    // If access is granted, redirect the user to the protected route
+                    window.location.href = '/protectedRoute'; // Replace '/protectedRoute' with your actual protected route
+                } else {
+                    // Handle other verdict values if needed
+                    console.log("Unknown verdict received.");
+                }
             })
             .catch(error => {
                 console.error('Error:', error);

@@ -1,5 +1,7 @@
 from datetime import datetime
 import os
+
+import yaml
 from .trust_signal_collection import get_latest_access_request, get_latest_auth_data, get_user_identity_data_by_id
 # Function to calculate User Identity Score
 def calculate_user_identity_score(identity_data):
@@ -9,7 +11,7 @@ def calculate_user_identity_score(identity_data):
     
     # Calculate scores based on email_verified, totp_enabled, and user_role
     if identity_data['email_verified']:
-        email_verified_score = 0.8  # Higher score for verified email
+        email_verified_score = 1.0  # Higher score for verified email
     if identity_data['totp_enabled']:
         totp_enabled_score = 1.0  # Higher score for TOTP enabled
 
@@ -86,11 +88,31 @@ def calculate_experience_score(created_timestamp):
 
     return experience_score
 
-#print(calculate_experience_score(created_timestamp=user_info['created_timestamp']))
-
 #function to calculate the subject's score based on the access request and contextual information  such as location 
+# Get the parent directory path
+parent_directory = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+
+# File path to policyConfiguration.yml
+file_path = os.path.join(parent_directory, 'policyConfiguration.yml')  # Update the path accordingly
+
+# Load policyConfiguration.yml file
+with open(file_path, 'r') as file:
+    policy_configurations = yaml.safe_load(file)
+
+# Extract country lists for each risk category
+high_risk_countries = policy_configurations.get('highRiskLocations', [])
+medium_risk_countries = policy_configurations.get('mediumRiskLocations', [])
+low_risk_countries = policy_configurations.get('lowRiskLocations', [])
+
+# Extract night start and night end times and convert to datetime objects
+period_start = policy_configurations.get('periodStartInput', '00:00:00')
+period_end = policy_configurations.get('periodEndInput', '06:00:00')
+
+night_start_time = datetime.strptime(period_start, '%H:%M:%S').time()
+night_end_time = datetime.strptime(period_end, '%H:%M:%S').time()
+
 # Function to assign trust scores based on access request data for the user_id
-def calculate_access_request_score(access_request_data, night_start='00:00:00', night_end='06:00:00',high_risk_locations=None, medium_risk_locations=None, low_risk_locations=None):
+def calculate_access_request_score(access_request_data, night_start=night_start_time, night_end=night_end_time,high_risk_locations=high_risk_countries, medium_risk_locations=medium_risk_countries, low_risk_locations=low_risk_countries):
     location_score = 0.0
     access_time_score = 0.0
     device_os_score = 0.0

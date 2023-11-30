@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Policy Configuration Page</title>
+    <style>
+        /* Updated CSS styles for improved user experience */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 36px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        h2 {
+            font-size: 24px;
+            color: #4CAF50;
+            margin-top: 0;
+        }
+        .section {
+            text-align: left;
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .section-title {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .section-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .segment-name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+        input[type="number"],
+        input[type="text"],
+        select {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        select {
+            appearance: none;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Policy Configuration Page</h1>
+        <h2>Configure ZTA System Security Policies</h2>
+
+        <!-- Trust Algorithm Weights Assignment Section -->
+        <div class="section">
+            <div class="section-title">Trust Algorithm Weights Assignment</div>
+            <div class="section-content">
+                <div class="segment-name">User Identity Score Weight</div>
+                <input id="userIdentityWeight" type="number" step="0.1" min="0" max="1" value="0.5">
+
+                <div class="segment-name">Authentication Score Weight</div>
+                <input id="authScoreWeight" type="number" step="0.1" min="0" max="1" value="0.5">
+
+                <div class="segment-name">Contextual Score Weight</div>
+                <input id="contextScoreWeight" type="number" step="0.1" min="0" max="1" value="0.5">
+
+                <div class="segment-name">Experience Score Weight</div>
+                <input id="expScoreWeight" type="number" step="0.1" min="0" max="1" value="0.5">
+            </div>
+        </div>
+        <!-- End of Trust Algorithm Weights Assignment Section -->
+
+        <!-- Trust Score Threshold for User Roles Section -->
+        <div class="section">
+            <div class="section-title">Trust Score Threshold for User Roles</div>
+            <div class="section-content">
+                <div class="segment-name">Approver</div>
+                <input id="approverThreshold" type="number" step="0.1" min="0" max="1" value="0.7">
+
+                <div class="segment-name">Policy Administrator</div>
+                <input id="adminThreshold" type="number" step="0.1" min="0" max="1" value="0.6">
+
+                <div class="segment-name">Security Viewer</div>
+                <input id="securityViewerThreshold" type="number" step="0.1" min="0" max="1" value="0.4">
+            </div>
+        </div>
+        <!-- End of Trust Score Threshold for User Roles Section -->
+
+        <div class="section">
+            <div class="section-title">Contextual Policy Configurations</div>
+
+            <!-- Geolocation Risk -->
+            <div class="segment-name">Geolocation Risk</div>
+            <div class="section-content">
+                <!-- High Risk Locations -->
+                <div class="segment-name">High Risk Locations</div>
+                <div class="section-content" id="highRiskLocations">
+                    <input id="highRiskInput" class="risk-location" type="text" placeholder="Country Code">
+                    <button onclick="addLocation('highRiskLocations')">Add High Risk Location</button>
+                </div>
+
+                <!-- Medium Risk Locations -->
+                <div class="segment-name">Medium Risk Locations</div>
+                <div class="section-content" id="mediumRiskLocations">
+                    <input id="mediumRiskInput" class="risk-location" type="text" placeholder="Country Code">
+                    <button onclick="addLocation('mediumRiskLocations')">Add Medium Risk Location</button>
+                </div>
+
+                <!-- Low Risk Locations -->
+                <div class="segment-name">Low Risk Locations</div>
+                <div class="section-content" id="lowRiskLocations">
+                    <input id="lowRiskInput" class="risk-location" type="text" placeholder="Country Code">
+                    <button onclick="addLocation('lowRiskLocations')">Add Low Risk Location</button>
+                </div>
+
+                <!-- Sign-in-Risk Threshold -->
+                <div class="segment-name">Sign-in-Risk Threshold</div>
+                <input id="signInRiskThreshold" type="number" step="0.1" min="0" max="1" value="0.5">
+
+                <!-- Suspicious Access Request Time Boundary -->
+                <div class="segment-name">Suspicious Access Request Time Boundary</div>
+                <div class="section-content">
+                    <input id="periodStartInput" type="text" placeholder="Period Start (HH:MM:SS)">
+                    <input id="periodEndInput" type="text" placeholder="Period End (HH:MM:SS)">
+                </div>
+            </div>
+            <button onclick="saveConfigurations()">Save Configurations</button>
+        </div>
+    </div>
+
+    <script>
+        function addLocation(sectionId) {
+            const section = document.getElementById(sectionId);
+            const newInput = document.createElement('input');
+            newInput.className = 'risk-location';
+            newInput.type = 'text';
+            newInput.placeholder = 'New Country';
+            section.appendChild(newInput);
+        }
+        
+        function saveConfigurations() {
+        const userIdentityWeight = document.getElementById('userIdentityWeight').value;
+        const authScoreWeight = document.getElementById('authScoreWeight').value;
+        const contextScoreWeight = document.getElementById('contextScoreWeight').value;
+        const expScoreWeight = document.getElementById('expScoreWeight').value;
+
+        const approverThreshold = document.getElementById('approverThreshold').value;
+        const adminThreshold = document.getElementById('adminThreshold').value;
+        const securityViewerThreshold = document.getElementById('securityViewerThreshold').value;
+
+        const highRiskLocations = Array.from(document.querySelectorAll('#highRiskLocations input')).map(input => input.value);
+        const mediumRiskLocations = Array.from(document.querySelectorAll('#mediumRiskLocations input')).map(input => input.value);
+        const lowRiskLocations = Array.from(document.querySelectorAll('#lowRiskLocations input')).map(input => input.value);
+
+        const signInRiskThreshold = document.getElementById('signInRiskThreshold').value;
+        const periodStartInput = document.getElementById('periodStartInput').value;
+        const periodEndInput = document.getElementById('periodEndInput').value;
+
+        const payload = {
+            userIdentityWeight,
+            authScoreWeight,
+            contextScoreWeight,
+            expScoreWeight,
+            approverThreshold,
+            adminThreshold,
+            securityViewerThreshold,
+            highRiskLocations,
+            mediumRiskLocations,
+            lowRiskLocations,
+            signInRiskThreshold,
+            periodStartInput,
+            periodEndInput
+        };
+
+        fetch('/receivePolicyConfigurations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Configurations saved successfully!');
+                alert('Policy Configurations have been saved successfully!');
+                window.location.href = '/home'; // Redirect to '/home' route after alert is closed
+            } else {
+                console.error('Failed to save configurations');
+                // Handle failure
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle error
+        });
+    }
+    </script>
+</body>
+</html>

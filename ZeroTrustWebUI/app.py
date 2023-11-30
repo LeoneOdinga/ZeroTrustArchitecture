@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import time
 from flask import Flask,render_template, request, jsonify, session, url_for,redirect, make_response
 import logging
 import math
@@ -10,6 +11,7 @@ from keycloak import KeycloakAuthenticationError, KeycloakOpenID
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timedelta
 import requests
+import yaml
 from Networking import Networking
 from keycloak import KeycloakAdmin
 from keycloak import KeycloakOpenIDConnection
@@ -219,6 +221,25 @@ def home():
     except KeycloakAuthenticationError as e:
         print(f"KeycloakAuthenticationError: {e}")
         return redirect(url_for('index'))
+    
+
+# Define the path to the parent directory where the JSON file is stored
+parent_directory = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+
+# Define the path to the access_decision.json file
+file_path = os.path.join(parent_directory, 'access_decision.json')
+
+# Function to get the latest access decision data from the JSON file
+def get_latest_access_decision():
+    latest_decision = None
+    
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as file:
+            access_decisions = json.load(file)
+            if access_decisions:
+                latest_decision = max(access_decisions, key=lambda x: x['ID'])
+    
+    return latest_decision
 
 #route to receive an access request and forward it to the AP
 @app.route('/receive-access-request', methods = ['POST'])
@@ -244,6 +265,7 @@ def receive_and_process_access_request():
     access_request = {
         'ID': new_id,
         'user_id': data.pop('userId'),
+        'intent': data['intent'],
         'resource_requested': data['resource'],
         'access_request_time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
         'public_ip_address': data['public_ip'],
@@ -264,20 +286,26 @@ def receive_and_process_access_request():
     except IOError as e:
         print(f"Error  occured while loading the json data {e}")
     
-    #try to send the data to the AP in the peer to peer network of nodes ... Testing
+    #send the access request data to the AP in the peer to peer network of nodes
 
     #first create an instance of the Networking class
     node4 = Networking("127.0.0.1",8004,4)
     node4.start()
-    node4.connect_with_node('127.0.0.1',8001)
-    node4.send_message_to_node('1',data)
+    node4.connect_with_node('127.0.0.1',8001) #connect with the access proxy
+    node4.connect_with_node('127.0.0.1',8003) # connect with the policy engine
+    node4.send_message_to_node('1',access_request)  #send access request to access proxy
 
-    #Then disconnect from the AP gracefully
+    access_decision = get_latest_access_decision()
+    print(access_decision)
+
+    policy_engine_verdict = access_decision.get('access_decision')
+
+    print(f"Policy Engine Verdict: {policy_engine_verdict}")
 
     node4.stop()
 
-    # Communicate to the frontend that the access request has been received
-    response_data = {'message': 'Data received successfully', 'status': 'received'}
+    # Communicate to the frontend that the access request has been verified
+    response_data = {'verdict': policy_engine_verdict}
     return jsonify(response_data)
 
 @app.route('/resource-selection')
@@ -299,8 +327,44 @@ def resource_selection():
         device_mac = ':'.join(re.findall('..', '%012x' % uuid.getnode()))
         device_vendor = get_mac_details(device_mac)
 
-
     return render_template('resourceSelection.html',user_id=user_id,location=location,public_ip=ip,device_mac=device_mac,device_vendor=device_vendor)
+
+# Function to create or update policyConfiguration.yml file
+def update_policy_configurations(data):
+    # Get the parent directory path
+    parent_directory = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+    file_path = os.path.join(parent_directory, 'policyConfiguration.yml')
+    
+    try:
+        with open(file_path, 'r') as file:
+            existing_data = yaml.safe_load(file)
+    except FileNotFoundError:
+        existing_data = {}
+
+    existing_data.update(data)
+
+    with open(file_path, 'w') as file:
+        yaml.dump(existing_data, file)
+
+@app.route('/receivePolicyConfigurations', methods=['POST'])
+def receive_policy_configurations():
+    if request.method == 'POST':
+        data = request.json  # Get JSON data from the POST request
+        print(data)
+
+        #update coinfigurations in the Policy YML file
+        update_policy_configurations(data)
+        print("Received Policy Configurations:")
+        for key, value in data.items():
+            print(f"{key}: {value}")
+        return 'Received Policy Configurations successfully!', 200
+    else:
+        return 'Invalid request method', 405
+
+
+@app.route('/configurePolicies', methods=['POST','GET'])
+def configure_policies():
+    return render_template('policyConfiguration.html')
 
 @app.route('/privilegedAccess', methods=['GET', 'POST'])
 def privilegedAccess():

@@ -1,0 +1,38 @@
+[
+    {
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "username": "user_demo1",
+        "email": "user.demo1@leotech.cns",
+        "created_timestamp": 1700878744739,
+        "email_verified": true,
+        "totp_enabled": false,
+        "user_role": "Policy Administrator"
+    },
+    {
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "username": "user_demo2",
+        "email": "leotechapprover1@proton.me",
+        "created_timestamp": 1700878817594,
+        "email_verified": true,
+        "totp_enabled": false,
+        "user_role": "Approver"
+    },
+    {
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "username": "user_demo3",
+        "email": "leotech.approver2@proton.me",
+        "created_timestamp": 1700878860962,
+        "email_verified": true,
+        "totp_enabled": false,
+        "user_role": "Approver"
+    },
+    {
+        "user_id": "a1b11de5-019c-409f-9b31-540b00e8d83e",
+        "username": "user_demo4",
+        "email": "user.demo4@leotech.cns",
+        "created_timestamp": 1701283542686,
+        "email_verified": true,
+        "totp_enabled": false,
+        "user_role": "Security Viewer"
+    }
+]
