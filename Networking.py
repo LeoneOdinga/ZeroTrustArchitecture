@@ -5,7 +5,9 @@ Handles how communication happens between the access proxy, trust engine, and po
 Uses peer to peer communication without involvement of a centralized server for establishing connections
 
 '''
+import datetime
 from p2pnetwork.node import Node
+import yaml
 import ZeroTrustWebUI.TrustAlgorithm as ta
 from ZeroTrustWebUI.trust_signal_collection import *
 
@@ -76,6 +78,34 @@ class Networking(Node):
                 'user_trust_score': user_trust_score
             }
             self.send_message_to_node('3',data)
+    def make_access_decision(self,user_role, user_trust_score, sign_in_risk):
+    # Load policy configuration data from YAML file
+        with open('policyConfiguration.yml', 'r') as file:
+            policy_configuration = yaml.safe_load(file)
+
+        # Access specific values from the policy configuration
+        admin_threshold = float(policy_configuration['adminThreshold'])
+        approver_threshold = float(policy_configuration['approverThreshold'])
+        security_viewer_threshold = float(policy_configuration['securityViewerThreshold'])
+        sign_in_risk_threshold = float(policy_configuration['signInRiskThreshold'])
+
+        # Initialize verdict
+        verdict = 1
+
+        # Determine access decision based on user trust score and role-specific thresholds
+        if user_role == 'Approver' and user_trust_score < approver_threshold:
+            verdict = 0
+        elif user_role == 'Security Viewer' and user_trust_score < security_viewer_threshold:
+            verdict = 0
+        elif user_role == 'Policy Administrator' and user_trust_score < admin_threshold:
+            verdict = 0
+
+        # Determine access decision based on sign-in risk threshold
+        if sign_in_risk < sign_in_risk_threshold:
+            verdict = 0
+
+        return verdict
+
 
     def process_message_from_trust_engine(self, sender, message):
         print(f"Received a message from Trust Engine Node [{sender}]: {message}")
@@ -89,6 +119,36 @@ class Networking(Node):
             print(f"Latest Access Request for the user: {get_latest_access_request(user_id,'access_requests.json')}")
             print(f"Latest Authentication Data for the user: {get_latest_auth_data(user_id,'auth_data.json')}")
             print(f"User Identity Data: {get_user_identity_data_by_id(user_id,'user_data.json')}")
+
+            user_identity_data = get_user_identity_data_by_id(user_id,'user_data.json')
+            user_auth_data = get_latest_auth_data(user_id, 'auth_data.json')
+            user_access_request = get_latest_access_request(user_id, 'access_requests.json')
+
+            access_request_time_str = user_access_request.get('access_request_time', '')
+
+            # Convert the string time to a datetime object
+            access_request_time_str = user_access_request.get('access_request_time', '')
+
+            # Extract time components (hours, minutes, seconds)
+            time_components = access_request_time_str.split(' ')[1]
+
+            time_without_year = ':'.join(time_components.split(':')[:-1])  # Extracting HH:MM:SS
+
+             # Retrieving user_role from user_identity_data
+            user_role = user_identity_data.get('user_role')
+
+            print(f"User Role: {user_role}")
+
+            # Retrieving sign_in_risk from user_auth_data
+            sign_in_risk = user_auth_data.get('sign_in_risk')
+            print(f"Sign In Risk: {sign_in_risk}")
+
+            # Retrieving country from location in user_access_request
+            location = user_access_request.get('location', '')
+
+            country = location.split('/')[-1]
+
+            print(f"Country: {country}")
 
             file_path = 'access_decision.json'
 
@@ -105,14 +165,10 @@ class Networking(Node):
                 access_decisions = []
                 new_id = 1
 
-            #try to set a trust threshold trial ...
-            verdict = ''
+            # Call the access decision script /function here to return the verdict
+            verdict = self.make_access_decision(user_role,user_trust_score,sign_in_risk)
 
-            if user_trust_score >=0.5:
-                verdict = 1
-            else:
-                verdict = 0
-
+            print(f"Policy Engine Verdict: {verdict}")
              # Prepare the access decision data
             access_decision_data = {
                 'ID': new_id,

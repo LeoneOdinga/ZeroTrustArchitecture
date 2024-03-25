@@ -116,5 +116,208 @@
         "intent": "request_access_decision",
         "user_trust_score": 0.5800000000000001,
         "access_decision": 1
+    },
+    {
+        "ID": 20,
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.5800000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 21,
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6040000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 22,
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6040000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 23,
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6040000000000001,
+        "access_decision": 0
+    },
+    {
+        "ID": 24,
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6040000000000001,
+        "access_decision": 0
+    },
+    {
+        "ID": 25,
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6940000000000001,
+        "access_decision": 0
+    },
+    {
+        "ID": 26,
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6040000000000001,
+        "access_decision": 0
+    },
+    {
+        "ID": 27,
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6940000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 28,
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6940000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 29,
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6940000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 30,
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6940000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 31,
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6940000000000001,
+        "access_decision": 0
+    },
+    {
+        "ID": 32,
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6940000000000001,
+        "access_decision": 0
+    },
+    {
+        "ID": 33,
+        "user_id": "768df141-8bd3-454a-b85c-761c2ed072f3",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6940000000000001,
+        "access_decision": 0
+    },
+    {
+        "ID": 34,
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6460000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 35,
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6460000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 36,
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6460000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 37,
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6380000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 38,
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6380000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 39,
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6380000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 40,
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.5960000000000001,
+        "access_decision": 0
+    },
+    {
+        "ID": 41,
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.5960000000000001,
+        "access_decision": 0
+    },
+    {
+        "ID": 42,
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.5960000000000001,
+        "access_decision": 0
+    },
+    {
+        "ID": 43,
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6460000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 44,
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6460000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 45,
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6460000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 46,
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6040000000000001,
+        "access_decision": 0
+    },
+    {
+        "ID": 47,
+        "user_id": "96b01a44-bc1a-4708-b57c-0dca05062396",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6460000000000001,
+        "access_decision": 1
+    },
+    {
+        "ID": 48,
+        "user_id": "79b8a60d-d1c0-4323-b039-3a3ce4bf7777",
+        "intent": "request_access_decision",
+        "user_trust_score": 0.6040000000000001,
+        "access_decision": 0
     }
 ]
