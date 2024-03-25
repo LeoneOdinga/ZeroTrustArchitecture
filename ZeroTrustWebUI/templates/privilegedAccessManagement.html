@@ -8,15 +8,14 @@
 <body>
     <div class="container">
         <h2>Privileged Access Management</h2>
-        <p>Just-in-Time Access To Privileged Resources</p>
+        <p>Just-in-Time Access To Privileged Tasks and Resources</p>
 
         <form method="POST" action="/privilegedAccess">
-            <label for="resource_name">Resource Name:</label>
+            <label for="resource_name">Select Resource/Privileged Tasks:</label>
             <select id="resource_name" name="resource_name" required>
-                <option value="Resource 1">Resource 1</option>
-                <option value="Resource 2">Resource 2</option>
-                <option value="Resource 3">Resource 3</option>
-                <!-- Add more resource options as needed -->
+                <option value="Resource 1">System Security Policies Configuration</option>
+                <option value="Resource 2" disabled>Resource 2</option>
+                <option value="Resource 3" disabled>Resource 3</option>
             </select>
         
             <label for="reason_for_access">Reason for Access:</label>
@@ -25,14 +24,14 @@
             <label for="access_duration">Access Duration (in minutes, up to 100 minutes):</label>
             <input type="number" id="access_duration" name="access_duration" min="1" max="100" required>
 
-            <label for="approvers">Approvers(Select at least three)</label>
+            <label for="approvers">Approvers(Select at least two)</label>
             <select id="approvers" name="approvers" multiple required>
                 {% for email in email_addresses %}
                 <option value="{{ email }}">{{ email }}</option>
                 {% endfor %}
             </select>
             
-            <input type="submit" value="Submit Request">
+            <input type="submit" value="Submit PAM Request">
         </form>
         
     </div>

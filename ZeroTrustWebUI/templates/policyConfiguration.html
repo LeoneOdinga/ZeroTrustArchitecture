@@ -4,12 +4,23 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{{url_for('static', filename='css/policy-configuration.css')}}">
     <title>Policy Configuration Page</title>
+
+    <style>
+        /* Additional styles for countdown display */
+        #remainingTime {
+            font-size: 20px;
+            color: #4CAF50;
+            margin-top: 15px;
+        }
+    </style>
 </head>
 <body>
 
     <div class="container">
         <h1>Policy Configuration Page</h1>
         <h2>Configure ZTA System Security Policies</h2>
+        <!-- Countdown display -->
+        <div id="remainingTime">Time Left: <span id="countdown"></span></div>
 
         <!-- Trust Algorithm Weights Assignment Section -->
         <div class="section">
@@ -97,6 +108,44 @@
             newInput.placeholder = 'New Country';
             section.appendChild(newInput);
         }
+        function updateRemainingTime() {
+                var currentTime = new Date();
+                var expirationTime = localStorage.getItem("expirationTime");
+
+                if (!expirationTime) {
+                    expirationTime = new Date('{{ expiration_time }}');
+                    localStorage.setItem("expirationTime", expirationTime); // Store expiration time in local storage
+                } else {
+                    expirationTime = new Date(expirationTime);
+                }
+
+                var timeDiff = expirationTime.getTime() - currentTime.getTime();
+                var totalSeconds = Math.floor(timeDiff / 1000);
+                var remainingTimeElement = document.getElementById('remainingTime');
+
+                if (totalSeconds <= 0) {
+                    remainingTimeElement.textContent = "Time remaining: 0 minutes 0 seconds";
+                    alert("YOUR ACCESS TIME HAS EXPIRED!")
+                    window.location.href = '/revokeToken'
+                    localStorage.removeItem("expirationTime");
+                    clearInterval(refreshInterval); // Stop refreshing the page
+                } else {
+                    var minutes = Math.floor(totalSeconds / 60);
+                    var seconds = totalSeconds % 60;
+                    remainingTimeElement.textContent = "Time remaining: " + minutes + " minutes " + seconds + " seconds";
+                }
+            }
+            var counter =0; 
+            // Call the function to initiate the countdown
+            var refreshInterval = setInterval(function() {
+                updateRemainingTime();
+                counter ++;
+                if (counter ==5)
+                {
+                    counter =0;
+                    location.reload();
+                }
+            }, 1000); // Refresh every secon
         
         function saveConfigurations() {
         const userIdentityWeight = document.getElementById('userIdentityWeight').value;

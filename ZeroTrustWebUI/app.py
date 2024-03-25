@@ -361,10 +361,53 @@ def receive_policy_configurations():
     else:
         return 'Invalid request method', 405
 
+@app.route('/resource-1')
+def display_transactions():
+    # Load transactions from the JSON file
+    with open('mobile_money_transactions.json', 'r') as file:
+        transactions = json.load(file)
+    
+    return render_template('transaction_simulation.html', transactions=transactions)
+
+@app.route('/resource-2')
+def display_tokens():
+    # Load tokens from JSON file
+    with open('tokens.json', 'r') as file:
+        tokens = json.load(file)
+    
+    return render_template('Fintech Access Tokens.html', tokens=tokens)
+
+@app.route('/logging')
+def access_requests():
+    file_path = os.path.join(os.path.dirname(os.getcwd()), 'access_requests.json')
+    
+    with open(file_path, 'r') as file:
+        access_requests_data = json.load(file)
+    
+    return render_template('logging_and_monitoring.html', access_requests=access_requests_data)
+
+
 
 @app.route('/configurePolicies', methods=['POST','GET'])
 def configure_policies():
-    return render_template('policyConfiguration.html')
+    # Retrieve the access duration from the database for the latest approved request ID
+
+    latest_access_request = AccessRequest.query.order_by(AccessRequest.id.desc()).limit(1).all()  # Adjust 'limit' as needed
+
+    if latest_access_request:
+
+        access_duration = 0
+
+        for request in latest_access_request:
+            access_duration = request.access_duration
+
+            # Get the current time
+            current_time = datetime.now()
+            
+            # Calculate the expiration time by adding access duration to the current time
+            expiration_time = current_time + timedelta(minutes=access_duration)
+
+            return render_template('policyConfiguration.html', expiration_time=expiration_time)
 
 @app.route('/privilegedAccess', methods=['GET', 'POST'])
 def privilegedAccess():
@@ -543,7 +586,7 @@ def approval_status():
             secret_shares = [approver.approver_secret_share for approver in approved_approver_shares]
 
             # Reconstructing the secret key from secret shares
-            reconstructed_secret = str(PAM.reconstruct_secret_from_base64_shares(secret_shares))[2:-1]
+            reconstructed_secret = PAM.reconstruct_secret_from_base64_shares(secret_shares)
             latest_request.requestStatus = 'approved'
             db.session.commit() 
         else:
@@ -569,7 +612,7 @@ def process_secret_key():
             response = requests.post('http://127.0.0.1:5000/hidden_resource',data={'secret_key': entered_secret_key})
 
             if response.text == 'Valid':
-                return redirect('/protected_page')
+                return redirect('/configurePolicies')
             else:
                 return "INVALID SECRET KEY"
             

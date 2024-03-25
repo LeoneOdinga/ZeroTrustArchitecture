@@ -93,7 +93,8 @@ def calculate_experience_score(created_timestamp):
 parent_directory = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
 
 # File path to policyConfiguration.yml
-file_path = os.path.join(parent_directory, 'policyConfiguration.yml')  # Update the path accordingly
+#file_path = os.path.join('policyConfiguration.yml')  # Update the path accordingly
+file_path = 'policyConfiguration.yml'
 
 # Load policyConfiguration.yml file
 with open(file_path, 'r') as file:
@@ -133,8 +134,8 @@ def calculate_access_request_score(access_request_data, night_start=night_start_
     access_time = datetime.strptime(access_request_data['access_request_time'], '%Y-%m-%d %H:%M:%S')
     
     # Check if the access time falls within the specified night time boundaries
-    night_start_time = datetime.strptime(night_start, '%H:%M:%S').time()
-    night_end_time = datetime.strptime(night_end, '%H:%M:%S').time()
+    night_start_time = night_start
+    night_end_time = night_end
     
     if night_start_time <= access_time.time() <= night_end_time:
         access_time_score = 0.6  

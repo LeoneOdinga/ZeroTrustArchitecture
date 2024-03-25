@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Fintech Tokens</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        td {
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Keys and Access Tokens</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Application</th>
+                <th>API Token</th>
+                <th>Access Token</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for token in tokens %}
+            <tr>
+                <td>{{ token['application'] }}</td>
+                <td>{{ token['api_token'] }}</td>
+                <td>{{ token['access_token'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

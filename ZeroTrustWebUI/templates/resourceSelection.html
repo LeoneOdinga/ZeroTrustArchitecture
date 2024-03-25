@@ -11,17 +11,17 @@
         <p class="access-message">Please select one of the following protected resources:</p>
         <div class="options">
             <div class="option" id="resource1" role="button" tabindex="0" aria-label="Resource 1" onclick="sendAccessRequest('Resource 1')">
-                <h3>01. PII Database</h3>
-                <p>Access Customer PII Database</p>
+                <h3>01. Mobile Money Transactions</h3>
+                <p>View Transactions</p>
             </div>
             <div class="option" role="button" tabindex="0" aria-label="Resource 2" onclick="sendAccessRequest('Resource 2')">
-                <h3>02. Credit Data</h3>
-                <p>Access Credit Details</p>
+                <h3>02. System API Keys and Access Tokens</h3>
+                <p>Securely Access System API Keys and Access Tokens for Fintech Services</p>
             </div>
             <!-- Add more resource options as needed -->
         </div>
         <div class="footer">
-            &copy; 2023 LeoTech LTD
+            &copy; 2023 LeoTech
         </div>
     </div>
 
@@ -79,17 +79,18 @@
                 // Extract the verdict from the response data
                     const verdict = data.verdict;
 
-                // Check the verdict value
-                if (verdict === 0) {
-                    // If access is denied, show an alert to the user
+                    if (verdict === 0) {
                     alert("Access Denied!");
-                    // Redirect to the login route after the alert is dismissed
-                    window.location.href = '/login'; // Replace '/login' with your actual login route
+                    window.location.href = '/login';
                 } else if (verdict === 1) {
-                    // If access is granted, redirect the user to the protected route
-                    window.location.href = '/protectedRoute'; // Replace '/protectedRoute' with your actual protected route
+                    if (resource === 'Resource 1') {
+                        window.location.href = '/resource-1';
+                    } else if (resource === 'Resource 2') {
+                        window.location.href = '/resource-2';
+                    } else {
+                        // Handle other resource options if needed
+                    }
                 } else {
-                    // Handle other verdict values if needed
                     console.log("Unknown verdict received.");
                 }
             })

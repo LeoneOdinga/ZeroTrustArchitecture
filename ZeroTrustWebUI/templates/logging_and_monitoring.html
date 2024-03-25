@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Access Requests</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+            margin: 20px auto;
+            overflow-x: auto;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Access Requests</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>User ID</th>
+                <th>Resource Requested</th>
+                <th>Access Request Time</th>
+                <th>Public IP</th>
+                <th>Location</th>
+                <th>Device Type</th>
+                <th>Device MAC</th>
+                <th>Device Vendor</th>
+                <th>Device OS</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for request in access_requests %}
+            <tr>
+                <td>{{ request['ID'] }}</td>
+                <td>{{ request['user_id'] }}</td>
+                <td>{{ request['resource_requested'] }}</td>
+                <td>{{ request['access_request_time'] }}</td>
+                <td>{{ request['public_ip_address'] }}</td>
+                <td>{{ request['location'] }}</td>
+                <td>{{ request['device_type'] }}</td>
+                <td>{{ request['device_mac'] }}</td>
+                <td>{{ request['device_vendor'] }}</td>
+                <td>{{ request['device_OS'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
